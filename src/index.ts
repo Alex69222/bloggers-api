@@ -1,0 +1,16 @@
+import express, {Request, Response} from 'express'
+import {bloggersRouter} from "./routers/bloggers-router";
+import {postsRouter} from "./routers/posts-router";
+
+const app = express();
+app.use(express.json())
+const port = process.env.PORT || 3003
+
+app.get('/', (req: Request, res: Response) =>{
+    res.send('Bloggers Tube')
+})
+
+app.use('/api/bloggers', bloggersRouter)
+app.use('/api/posts', postsRouter)
+
+app.listen(port)
