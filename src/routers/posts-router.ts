@@ -5,6 +5,7 @@ import {shortDescriptionValidationMiddleware} from "../middlewares/posts/short-d
 import {contentValidationMiddleware} from "../middlewares/posts/content-validation-middleware";
 import {bloggerIdValidationMiddleware} from "../middlewares/bloggers/blogger-id-validation-middleware";
 import {validationResultMiddleware} from "../middlewares/validation-result-middleware";
+import {authorizationMiddleware} from "../middlewares/authorization-middleware";
 
 export const postsRouter = Router({})
 
@@ -21,6 +22,7 @@ postsRouter.get('/:id', (req: Request, res: Response) => {
 })
 
 postsRouter.put('/:id',
+    authorizationMiddleware,
     titleValidationMiddleware,
     shortDescriptionValidationMiddleware,
     contentValidationMiddleware,
@@ -37,6 +39,7 @@ postsRouter.put('/:id',
 )
 
 postsRouter.post('/',
+    authorizationMiddleware,
     titleValidationMiddleware,
     shortDescriptionValidationMiddleware,
     contentValidationMiddleware,
@@ -52,7 +55,9 @@ postsRouter.post('/',
     }
 )
 
-postsRouter.delete('/:id', (req: Request, res: Response) =>{
+postsRouter.delete('/:id',
+    authorizationMiddleware,
+    (req: Request, res: Response) =>{
     const postIsDeleted = postsRepository.deletePost(+req.params.id)
     if(postIsDeleted){
         res.sendStatus(204)

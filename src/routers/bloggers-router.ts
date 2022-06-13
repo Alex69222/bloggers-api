@@ -3,6 +3,7 @@ import {bloggersRepository} from "../repository/bloggers-repository";
 import {nameValidationMiddleware} from "../middlewares/bloggers/name-validation-middleware";
 import {validationResultMiddleware} from "../middlewares/validation-result-middleware";
 import {youtubeUrlValidationMiddleware} from "../middlewares/bloggers/youtube-url-validation-middleware";
+import {authorizationMiddleware} from "../middlewares/authorization-middleware";
 
 export const bloggersRouter = Router({})
 
@@ -21,6 +22,7 @@ bloggersRouter.get('/:id', (req: Request, res: Response) => {
 })
 
 bloggersRouter.post('/',
+    authorizationMiddleware,
     nameValidationMiddleware,
     youtubeUrlValidationMiddleware,
     validationResultMiddleware,
@@ -29,6 +31,7 @@ bloggersRouter.post('/',
         res.status(201).send(newBlogger)
     })
 bloggersRouter.put('/:id',
+    authorizationMiddleware,
     nameValidationMiddleware,
     youtubeUrlValidationMiddleware,
     validationResultMiddleware,
@@ -42,6 +45,7 @@ bloggersRouter.put('/:id',
     }
 )
 bloggersRouter.delete('/:id',
+    authorizationMiddleware,
     (req: Request, res: Response) => {
         const bloggerIsDeleted = bloggersRepository.deleteBlogger(+req.params.id)
         if(bloggerIsDeleted){
