@@ -53,7 +53,7 @@ export const bloggersRepository = {
         const bloggerIsDeleted = await bloggersCollection.deleteOne({id})
         return bloggerIsDeleted.deletedCount === 1
     },
-    async getBloggerPosts(pageNumber: number, pageSize: number, id: number){
+    async getBloggerPosts(pageNumber: number, pageSize: number, id: number) {
         const bloggerPostsCount = await postsCollection.count({bloggerId: id})
         const bloggerPosts = await postsCollection.find({bloggerId: id})
             .skip((pageNumber - 1) * pageSize)
@@ -67,9 +67,7 @@ export const bloggersRepository = {
             pageSize,
             "totalCount": bloggerPostsCount,
             "items": [
-                {
-                    ...bloggerPosts
-                }
+                ...bloggerPosts
             ]
         }
     }
