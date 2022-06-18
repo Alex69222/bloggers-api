@@ -1,4 +1,4 @@
-import {findBlogger} from "./bloggers-repository";
+import {bloggersCollection, postsCollection} from "./db";
 
 const posts = [
     {
@@ -28,51 +28,61 @@ const findPost = (id: number) => {
     return posts.find(p => p.id === id)
 }
 export const postsRepository = {
-    getPosts(id?: number) {
-        if (id) {
-            return findPost(id)
-        } else {
-            return posts
-        }
+    async getPosts(pageNumber: number, pageSize: number) {
+        const postsCount = await postsCollection.count({})
+        const posts = await postsCollection.find({})
+            .skip((pageNumber - 1) * pageSize)
+            .limit(pageSize)
+            .project({_id: 0})
+            .toArray()
 
+        return {
+            "pagesCount": Math.ceil(postsCount / pageSize),
+            "page": pageNumber,
+            pageSize,
+            "totalCount": postsCount,
+            "items": [
+                ...posts
+            ]
+        }
     },
-    createPost(title: string, shortDescription: string, content: string, bloggerId: number) {
-        const blogger = findBlogger(bloggerId);
-        if (blogger) {
-            const newPost = {
-                id: (+new Date()),
+    async getPostById(id: number) {
+        const post = await postsCollection.findOne({id}, {projection: {_id: 0}})
+        return post
+    },
+    async createPost(title: string, shortDescription: string, content: string, bloggerId: number) {
+        const blogger = await bloggersCollection.findOne({id: bloggerId})
+        const newPost = {
+            id: +(new Date()),
+            title,
+            shortDescription,
+            content,
+            bloggerId,
+            bloggerName: blogger!.name
+        }
+        await postsCollection.insertOne(newPost)
+        return {
+            id: newPost.id,
+            title,
+            shortDescription,
+            content,
+            bloggerId,
+            bloggerName: newPost.bloggerName
+        }
+    },
+    async updatePost(title: string, shortDescription: string, content: string, bloggerId: number, id: number) {
+        const postIsUpdated = await postsCollection.updateOne({id}, {
+            $set: {
                 title,
                 shortDescription,
-                content,
                 bloggerId,
-                bloggerName: blogger.name
+                content
             }
-            posts.push(newPost)
-            return newPost
-        } else {
-            return false
-        }
+        })
+        return postIsUpdated.matchedCount === 1
     },
-    updatePost(title: string, shortDescription: string, content: string, bloggerId: number, id: number) {
-        const post = findPost(id)
-        if (post) {
-            post.title = title
-            post.shortDescription = shortDescription
-            post.content = content
-            post.bloggerId = bloggerId
-
-            return true
-        } else {
-            return false
-        }
-    },
-    deletePost(id: number) {
-        const postIndex = posts.findIndex(p => p.id === id)
-        if (postIndex !== -1) {
-            posts.splice(postIndex, 1)
-            return true
-        } else {
-            return false
-        }
+    async deletePost(id: number) {
+        const postIsDeleted = await postsCollection.deleteOne({id})
+        return postIsDeleted.deletedCount === 1
     }
 }

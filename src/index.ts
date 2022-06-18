@@ -1,6 +1,7 @@
 import express, {Request, Response} from 'express'
 import {bloggersRouter} from "./routers/bloggers-router";
 import {postsRouter} from "./routers/posts-router";
+import {runDb} from "./repository/db";
 
 const app = express();
 app.use(express.json())
@@ -13,4 +14,11 @@ app.get('/', (req: Request, res: Response) =>{
 app.use('/api/bloggers', bloggersRouter)
 app.use('/api/posts', postsRouter)
 
-app.listen(port)
+const startApp = async () =>{
+    await runDb()
+    app.listen(port, () =>{
+        console.log(`Server started at port:  ${port}`)
+    })
+}
+
+startApp()

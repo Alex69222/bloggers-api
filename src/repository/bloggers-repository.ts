@@ -1,62 +1,76 @@
-const bloggers = [
-    {
-        id: 0,
-        name: 'SW blogger',
-        youtubeUrl: 'https://youtube.com/SWblogger'
-    }, {
-        id: 1,
-        name: 'LoR blogger',
-        youtubeUrl: 'https://youtube.com/LoRblogger'
-    }, {
-        id: 2,
-        name: 'HP blogger',
-        youtubeUrl: 'https://youtube.com/HPblogger'
-    }, {
-        id: 3,
-        name: 'Marvel blogger',
-        youtubeUrl: 'https://youtube.com/Marvelblogger'
-    },
-]
-export const findBlogger = (id: number) =>{
-    return bloggers.find(b => b.id === id)
-}
+import {bloggersCollection, postsCollection} from "./db";
 
 export const bloggersRepository = {
 
-    getBloggers(id?: number) {
-        if (id) {
-            const blogger = findBlogger(id)
-            return blogger
-        } else {
-            return bloggers
+    async getBloggers(searchNameTerm: string | null, pageNumber: number, pageSize: number) {
+
+        const filter: any = {}
+        if (searchNameTerm) {
+            filter.name = {$regex: searchNameTerm}
+        }
+        const bloggersCount = await bloggersCollection.count(filter)
+        const bloggers = await bloggersCollection
+            .find(filter)
+            .skip((pageNumber - 1) * pageSize)
+            .limit(pageSize)
+            .project({_id: 0})
+            .toArray()
+
+        return {
+            pagesCount: Math.ceil(+bloggersCount / pageSize),
+            page: pageNumber,
+            pageSize,
+            totalCount: bloggersCount,
+            items: [
+                ...bloggers
+            ]
         }
     },
-    createBlogger(name: string, youtubeUrl: string) {
+    async getBloggerById(id: number) {
+        const blogger = await bloggersCollection.findOne({id: id}, {projection: {_id: 0}})
+        return blogger
+    },
+    async createBlogger(name: string, youtubeUrl: string) {
         const newBlogger = {
-            id: (+new Date()),
+            id: +(new Date()),
             name,
             youtubeUrl
         }
-        bloggers.push(newBlogger)
-        return newBlogger
-    },
-    updateBlogger(id:number, name: string, youtubeUrl: string){
-        const blogger = findBlogger(id)
-        if (blogger){
-            blogger.name = name
-            blogger.youtubeUrl = youtubeUrl
-            return true
-        }else{
-            return false
+        await bloggersCollection.insertOne(newBlogger)
+        return {
+            id: newBlogger.id,
+            name: newBlogger.name,
+            youtubeUrl: newBlogger.youtubeUrl
         }
     },
-    deleteBlogger(id: number){
-        const bloggerIndex = bloggers.findIndex(b => b.id === id)
-        if(bloggerIndex !== -1){
-            bloggers.splice(bloggerIndex, 1)
-            return true
-        }else{
-            return false
+    async updateBlogger(id: number, name: string, youtubeUrl: string) {
+        const bloggerIsUpdated = await bloggersCollection.updateOne({id}, {$set: {name, youtubeUrl}})
+
+        return bloggerIsUpdated.matchedCount === 1
+
+    },
+    async deleteBlogger(id: number) {
+        const bloggerIsDeleted = await bloggersCollection.deleteOne({id})
+        return bloggerIsDeleted.deletedCount === 1
+    },
+    async getBloggerPosts(pageNumber: number, pageSize: number, id: number){
+        const bloggerPostsCount = await postsCollection.count({bloggerId: id})
+        const bloggerPosts = await postsCollection.find({bloggerId: id})
+            .skip((pageNumber - 1) * pageSize)
+            .limit(pageSize)
+            .project({_id: 0})
+            .toArray()
+
+        return {
+            "pagesCount": Math.ceil(bloggerPostsCount / pageSize),
+            "page": pageNumber,
+            pageSize,
+            "totalCount": bloggerPostsCount,
+            "items": [
+                {
+                    ...bloggerPosts
+                }
+            ]
         }
     }
 }

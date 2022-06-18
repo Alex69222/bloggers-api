@@ -1,11 +1,12 @@
 import {body} from "express-validator";
-import {findBlogger} from "../../repository/bloggers-repository";
+import {bloggersService} from "../../domain/bloggers-service";
+// import {findBlogger} from "../../repository/bloggers-repository";
 
 export const bloggerIdValidationMiddleware = body('bloggerId')
     .isNumeric()
     .withMessage('blogger id should be a number')
-    .custom(value =>{
-        const bloggerExists = findBlogger(+value)
+    .custom(async (value) =>{
+        const bloggerExists = await bloggersService.getBloggerById(+value)
         if(!bloggerExists){
             return Promise.reject('Blogger doesn\'t exist')
         }else {
