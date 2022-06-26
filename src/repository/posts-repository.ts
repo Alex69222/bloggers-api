@@ -36,15 +36,14 @@ export const postsRepository = {
             .project({_id: 0})
             .toArray()
 
-        return {
-            "pagesCount": Math.ceil(postsCount / pageSize),
-            "page": pageNumber,
-            pageSize,
-            "totalCount": postsCount,
-            "items": [
-                ...posts
-            ]
-        }
+        // return {
+        //     "pagesCount": Math.ceil(postsCount / pageSize),
+        //     "page": pageNumber,
+        //     pageSize,
+        //     "totalCount": postsCount,
+        //     "items": posts
+        // }
+        return {postsCount, posts}
     },
     async getPostById(id: number) {
         const post = await postsCollection.findOne({id}, {projection: {_id: 0}})

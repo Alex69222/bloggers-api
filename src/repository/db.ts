@@ -1,12 +1,16 @@
 import {MongoClient} from "mongodb";
-import {settngs} from "../settings";
+import {settings} from "../settings";
+import {UserType} from "../domain/users-service";
+import {CommentType} from "../domain/comments-service";
 
 
-export const client = new MongoClient(settngs.MONGO_URI)
+export const client = new MongoClient(settings.MONGO_URI)
 const db = client.db('bloggers-posts')
 
 export const bloggersCollection = db.collection('bloggers')
 export const postsCollection = db.collection('posts')
+export const usersCollection = db.collection<UserType>('users')
+export const commentsCollection = db.collection<CommentType>('comments')
 
 export async  function runDb(){
     try{

@@ -2,11 +2,11 @@ import {Request, Response, Router} from "express";
 import {nameValidationMiddleware} from "../middlewares/bloggers/name-validation-middleware";
 import {validationResultMiddleware} from "../middlewares/validation-result-middleware";
 import {youtubeUrlValidationMiddleware} from "../middlewares/bloggers/youtube-url-validation-middleware";
-import {authorizationMiddleware} from "../middlewares/authorization-middleware";
+import {adminAuthorizationMiddleware} from "../middlewares/admin-authorization-middleware";
 import {bloggersService} from "../domain/bloggers-service";
 import {titleValidationMiddleware} from "../middlewares/posts/title-validation-middleware";
 import {shortDescriptionValidationMiddleware} from "../middlewares/posts/short-description-validation-middleware";
-import {contentValidationMiddleware} from "../middlewares/posts/content-validation-middleware";
+import {postContentValidationMiddleware} from "../middlewares/posts/post-content-validation-middleware";
 import {postsService} from "../domain/posts-service";
 
 export const bloggersRouter = Router({})
@@ -46,10 +46,10 @@ bloggersRouter.get('/:id/posts',
     }
 )
 bloggersRouter.post('/:id/posts',
-    authorizationMiddleware,
+    adminAuthorizationMiddleware,
     titleValidationMiddleware,
     shortDescriptionValidationMiddleware,
-    contentValidationMiddleware,
+    postContentValidationMiddleware,
     validationResultMiddleware,
     async (req: Request, res: Response) => {
         const blogger = await bloggersService.getBloggerById(+req.params.id)
@@ -63,7 +63,7 @@ bloggersRouter.post('/:id/posts',
     }
 )
 bloggersRouter.post('/',
-    authorizationMiddleware,
+    adminAuthorizationMiddleware,
     nameValidationMiddleware,
     youtubeUrlValidationMiddleware,
     validationResultMiddleware,
@@ -72,7 +72,7 @@ bloggersRouter.post('/',
         res.status(201).send(newBlogger)
     })
 bloggersRouter.put('/:id',
-    authorizationMiddleware,
+    adminAuthorizationMiddleware,
     nameValidationMiddleware,
     youtubeUrlValidationMiddleware,
     validationResultMiddleware,
@@ -86,7 +86,7 @@ bloggersRouter.put('/:id',
     }
 )
 bloggersRouter.delete('/:id',
-    authorizationMiddleware,
+    adminAuthorizationMiddleware,
     async (req: Request, res: Response) => {
         const bloggerIsDeleted = await bloggersService.deleteBlogger(+req.params.id)
         if (bloggerIsDeleted) {

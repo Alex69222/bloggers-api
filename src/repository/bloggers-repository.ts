@@ -1,4 +1,5 @@
 import {bloggersCollection, postsCollection} from "./db";
+import {ObjectId} from "mongodb";
 
 export const bloggersRepository = {
 
@@ -37,6 +38,7 @@ export const bloggersRepository = {
             youtubeUrl
         }
         await bloggersCollection.insertOne(newBlogger)
+
         return {
             id: newBlogger.id,
             name: newBlogger.name,
