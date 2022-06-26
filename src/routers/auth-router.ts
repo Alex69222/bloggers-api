@@ -8,9 +8,9 @@ import {validationResultMiddleware} from "../middlewares/validation-result-middl
 export const authRouter = Router({})
 
 authRouter.post('/login',
-    userLoginValidationMiddleware,
-    userPasswordValidationMiddleware,
-    validationResultMiddleware,
+    // userLoginValidationMiddleware,
+    // userPasswordValidationMiddleware,
+    // validationResultMiddleware,
     async (req: Request, res: Response) => {
         const user = await usersService.checkCredentials(req.body.login, req.body.password)
         if (!user) return res.status(401).send('login or email is incorrect')

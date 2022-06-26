@@ -9,6 +9,7 @@ import {postsService} from "../domain/posts-service";
 import {authMiddleware} from "../middlewares/users/auth-middleware";
 import {commentsService} from "../domain/comments-service";
 import {pagePropsHandler} from "../helpers/pagePropsHandler";
+import {commentContentValidationMiddleware} from "../middlewares/comments/comment-content-validation-middleware";
 
 export const postsRouter = Router({})
 
@@ -30,7 +31,7 @@ postsRouter.get('/:id',
 
 postsRouter.post('/:id/comments',
     authMiddleware,
-    postContentValidationMiddleware,
+    commentContentValidationMiddleware,
     validationResultMiddleware,
     async (req: Request, res: Response) => {
         const post = await postsService.getPostById(req.params.id)
