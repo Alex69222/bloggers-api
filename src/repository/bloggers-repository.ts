@@ -33,7 +33,7 @@ export const bloggersRepository = {
     },
     async createBlogger(name: string, youtubeUrl: string) {
         const newBlogger = {
-            id: +(new Date()),
+            id: Number(new Date()).toString(),
             name,
             youtubeUrl
         }
