@@ -26,7 +26,7 @@ export const postsRepository = {
     async createPost(title: string, shortDescription: string, content: string, bloggerId: string) {
         const blogger = await bloggersCollection.findOne({id: bloggerId})
         const newPost = {
-            id: +(new Date()),
+            id: Number(new Date()).toString(),
             title,
             shortDescription,
             content,
