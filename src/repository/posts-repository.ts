@@ -43,7 +43,7 @@ export const postsRepository = {
             bloggerName: newPost.bloggerName
         }
     },
-    async updatePost(title: string, shortDescription: string, content: string, bloggerId: number, id: string) {
+    async updatePost(title: string, shortDescription: string, content: string, bloggerId: string, id: string) {
         const postIsUpdated = await postsCollection.updateOne({id}, {
             $set: {
                 title,

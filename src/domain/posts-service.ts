@@ -16,7 +16,7 @@ export const postsService = {
         const post = await postsRepository.getPostById(id)
         return post
     },
-    async updatePost(title: string, shortDescription: string, content: string, bloggerId: number, id:string){
+    async updatePost(title: string, shortDescription: string, content: string, bloggerId: string, id:string){
         const postIsUpdated  = await  postsRepository.updatePost(title,shortDescription, content, bloggerId, id)
         return postIsUpdated
     },
