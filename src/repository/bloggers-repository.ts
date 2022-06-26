@@ -27,7 +27,7 @@ export const bloggersRepository = {
             ]
         }
     },
-    async getBloggerById(id: number) {
+    async getBloggerById(id: string) {
         const blogger = await bloggersCollection.findOne({id: id}, {projection: {_id: 0}})
         return blogger
     },
@@ -55,7 +55,7 @@ export const bloggersRepository = {
         const bloggerIsDeleted = await bloggersCollection.deleteOne({id})
         return bloggerIsDeleted.deletedCount === 1
     },
-    async getBloggerPosts(pageNumber: number, pageSize: number, id: number) {
+    async getBloggerPosts(pageNumber: number, pageSize: number, id: string) {
         const bloggerPostsCount = await postsCollection.count({bloggerId: id})
         const bloggerPosts = await postsCollection.find({bloggerId: id})
             .skip((pageNumber - 1) * pageSize)

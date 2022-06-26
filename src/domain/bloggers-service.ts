@@ -5,7 +5,7 @@ export const bloggersService = {
         const bloggers = await bloggersRepository.getBloggers(searchNameTerm, pageNumber, pageSize)
         return bloggers
     },
-    async getBloggerById(id: number) {
+    async getBloggerById(id: string) {
         return await bloggersRepository.getBloggerById(id)
     },
     async createBlogger(name: string, youtubeUrl: string) {
@@ -22,7 +22,7 @@ export const bloggersService = {
         const bloggerIsDeleted = await bloggersRepository.deleteBlogger(id)
         return bloggerIsDeleted
     },
-    async getBloggerPosts(pageNumber: number, pageSize: number, id: number){
+    async getBloggerPosts(pageNumber: number, pageSize: number, id: string){
         const posts = await bloggersRepository.getBloggerPosts(pageNumber, pageSize, id)
         return posts
     }

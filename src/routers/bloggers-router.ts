@@ -23,7 +23,7 @@ bloggersRouter.get('/',
     })
 bloggersRouter.get('/:id',
     async (req: Request, res: Response) => {
-        const blogger = await bloggersService.getBloggerById(+req.params.id)
+        const blogger = await bloggersService.getBloggerById(req.params.id)
         if (blogger) {
             res.send(blogger)
         } else {
@@ -35,9 +35,9 @@ bloggersRouter.get('/:id/posts',
     async (req: Request, res: Response) => {
         const pageNumber = Number(req.query.PageNumber) || 1
         const pageSize = Number(req.query.PageSize) || 10
-        const blogger = await bloggersService.getBloggerById(+req.params.id)
+        const blogger = await bloggersService.getBloggerById(req.params.id)
         if (blogger) {
-            const bloggerPosts = await bloggersService.getBloggerPosts(pageNumber, pageSize, +req.params.id)
+            const bloggerPosts = await bloggersService.getBloggerPosts(pageNumber, pageSize, req.params.id)
             res.send(bloggerPosts)
         } else {
             res.sendStatus(404)
@@ -52,7 +52,7 @@ bloggersRouter.post('/:id/posts',
     postContentValidationMiddleware,
     validationResultMiddleware,
     async (req: Request, res: Response) => {
-        const blogger = await bloggersService.getBloggerById(+req.params.id)
+        const blogger = await bloggersService.getBloggerById(req.params.id)
         if (blogger) {
             const newPost = await postsService.createPost(req.body.title, req.body.shortDescription, req.body.content, +req.params.id)
             res.status(201).send(newPost)
