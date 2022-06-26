@@ -88,7 +88,7 @@ bloggersRouter.put('/:id',
 bloggersRouter.delete('/:id',
     adminAuthorizationMiddleware,
     async (req: Request, res: Response) => {
-        const bloggerIsDeleted = await bloggersService.deleteBlogger(+req.params.id)
+        const bloggerIsDeleted = await bloggersService.deleteBlogger(req.params.id)
         if (bloggerIsDeleted) {
             res.sendStatus(204)
         } else {

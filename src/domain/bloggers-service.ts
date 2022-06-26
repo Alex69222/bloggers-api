@@ -18,7 +18,7 @@ export const bloggersService = {
         return bloggerIsUpdated
 
     },
-    async deleteBlogger(id: number) {
+    async deleteBlogger(id: string) {
         const bloggerIsDeleted = await bloggersRepository.deleteBlogger(id)
         return bloggerIsDeleted
     },

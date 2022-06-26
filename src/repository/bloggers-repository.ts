@@ -51,7 +51,7 @@ export const bloggersRepository = {
         return bloggerIsUpdated.matchedCount === 1
 
     },
-    async deleteBlogger(id: number) {
+    async deleteBlogger(id: string) {
         const bloggerIsDeleted = await bloggersCollection.deleteOne({id})
         return bloggerIsDeleted.deletedCount === 1
     },
