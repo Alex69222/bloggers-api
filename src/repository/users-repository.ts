@@ -23,7 +23,7 @@ export const usersRepository = {
         await usersCollection.insertOne(user)
         return user
     },
-    async deleteUser(userId: number): Promise<boolean> {
+    async deleteUser(userId: string): Promise<boolean> {
             const userIsDeleted = await usersCollection.deleteOne({id: userId})
         return userIsDeleted.deletedCount === 1
     }

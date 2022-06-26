@@ -54,7 +54,7 @@ bloggersRouter.post('/:id/posts',
     async (req: Request, res: Response) => {
         const blogger = await bloggersService.getBloggerById(req.params.id)
         if (blogger) {
-            const newPost = await postsService.createPost(req.body.title, req.body.shortDescription, req.body.content, +req.params.id)
+            const newPost = await postsService.createPost(req.body.title, req.body.shortDescription, req.body.content, req.params.id)
             res.status(201).send(newPost)
         } else {
             res.sendStatus(404)
@@ -77,7 +77,7 @@ bloggersRouter.put('/:id',
     youtubeUrlValidationMiddleware,
     validationResultMiddleware,
     async (req: Request, res: Response) => {
-        const bloggerIsUpdated = await bloggersService.updateBlogger(+req.params.id, req.body.name, req.body.youtubeUrl)
+        const bloggerIsUpdated = await bloggersService.updateBlogger(req.params.id, req.body.name, req.body.youtubeUrl)
         if (bloggerIsUpdated) {
             res.sendStatus(204)
         } else {

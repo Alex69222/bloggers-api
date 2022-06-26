@@ -9,7 +9,7 @@ export const commentsRouter = Router({})
 
 commentsRouter.get('/:commentId',
     async (req: Request, res: Response) => {
-        const comment = await commentsService.findCommentById(+req.params.commentId)
+        const comment = await commentsService.findCommentById(req.params.commentId)
         if(comment){
             res.status(200).send(comment)
         }else{
@@ -22,11 +22,11 @@ commentsRouter.put('/:commentId',
     commentContentValidationMiddleware,
     validationResultMiddleware,
     async (req: Request, res: Response) => {
-        const comment = await commentsService.findCommentById(+req.params.commentId)
+        const comment = await commentsService.findCommentById(req.params.commentId)
         if(!comment) return res.sendStatus(404)
         if(comment.userId !== req.user!.id) return res.sendStatus(403)
 
-        const result = await commentsService.updateComment(+req.params.commentId, req.body.content)
+        const result = await commentsService.updateComment(req.params.commentId, req.body.content)
         if(result){
             return res.sendStatus(204)
         } else{
@@ -38,11 +38,11 @@ commentsRouter.put('/:commentId',
 commentsRouter.delete('/:commentId',
     authMiddleware,
     async (req: Request, res: Response) => {
-        const comment = await commentsService.findCommentById(+req.params.commentId)
+        const comment = await commentsService.findCommentById(req.params.commentId)
         if(!comment) return res.sendStatus(404)
         if(comment.userId !== req.user!.id) return res.sendStatus(403)
 
-        const result = await commentsService.deleteComment(+req.params.commentId)
+        const result = await commentsService.deleteComment(req.params.commentId)
         if(result){
             return res.sendStatus(204)
         } else{

@@ -45,7 +45,7 @@ export const bloggersRepository = {
             youtubeUrl: newBlogger.youtubeUrl
         }
     },
-    async updateBlogger(id: number, name: string, youtubeUrl: string) {
+    async updateBlogger(id: string, name: string, youtubeUrl: string) {
         const bloggerIsUpdated = await bloggersCollection.updateOne({id}, {$set: {name, youtubeUrl}})
 
         return bloggerIsUpdated.matchedCount === 1

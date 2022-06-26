@@ -4,7 +4,7 @@ import {ObjectId} from "mongodb";
 import {transformToPaginationView} from "../helpers/transformToPaginationView";
 export type UserType = {
     _id: ObjectId
-    id: number
+    id: string
     login: string
     password: string
 }
@@ -26,7 +26,7 @@ export const usersService = {
 
         const newUser: UserType = {
             _id: new ObjectId(),
-            id: +(new Date()),
+            id: Number(new Date()).toString(),
             login,
             password: passwordHash
         }
@@ -37,7 +37,7 @@ export const usersService = {
         }
 
     },
-    async deleteUser(userId: number): Promise<boolean>{
+    async deleteUser(userId: string): Promise<boolean>{
         const userIsDeleted = await usersRepository.deleteUser(userId)
         return userIsDeleted
     },

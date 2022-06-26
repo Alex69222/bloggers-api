@@ -20,7 +20,7 @@ postsRouter.get('/',
 
 postsRouter.get('/:id',
     async (req: Request, res: Response) => {
-        const post = await postsService.getPostById(+req.params.id)
+        const post = await postsService.getPostById(req.params.id)
         if (post) {
             res.send(post)
         } else {
@@ -33,20 +33,20 @@ postsRouter.post('/:id/comments',
     postContentValidationMiddleware,
     validationResultMiddleware,
     async (req: Request, res: Response) => {
-        const post = await postsService.getPostById(+req.params.id)
+        const post = await postsService.getPostById(req.params.id)
         if (!post) return res.sendStatus(404)
-        const newComment = await commentsService.addComment(+req.user!.id, req.user!.login, req.body.content, +req.params.id)
+        const newComment = await commentsService.addComment(req.user!.id, req.user!.login, req.body.content, req.params.id)
         res.status(201).send(newComment)
     }
 )
 postsRouter.get('/:id/comments',
 
     async (req: Request, res: Response) => {
-        const post = await postsService.getPostById(+req.params.id)
+        const post = await postsService.getPostById(req.params.id)
         if (!post) return res.sendStatus(404)
         const commentsForSpecifiedPost = await commentsService.getCommentsForSpecifiedPost(
             ...pagePropsHandler(req.query.PageNumber, req.query.PageSize),
-            +req.params.id
+            req.params.id
         )
         return res.status(200).send(commentsForSpecifiedPost)
     }
@@ -60,7 +60,7 @@ postsRouter.put('/:id',
     bloggerIdValidationMiddleware,
     validationResultMiddleware,
     async (req: Request, res: Response) => {
-        const postIsUpdated = await postsService.updatePost(req.body.title, req.body.shortDescription, req.body.content, +req.body.bloggerId, +req.params.id)
+        const postIsUpdated = await postsService.updatePost(req.body.title, req.body.shortDescription, req.body.content, req.body.bloggerId, req.params.id)
         if (postIsUpdated) {
             res.sendStatus(204)
         } else {
@@ -77,7 +77,7 @@ postsRouter.post('/',
     bloggerIdValidationMiddleware,
     validationResultMiddleware,
     async (req: Request, res: Response) => {
-        const newPost = await postsService.createPost(req.body.title, req.body.shortDescription, req.body.content, +req.body.bloggerId)
+        const newPost = await postsService.createPost(req.body.title, req.body.shortDescription, req.body.content, req.body.bloggerId)
         res.status(201).send(newPost)
     }
 )

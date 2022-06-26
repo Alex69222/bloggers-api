@@ -30,7 +30,7 @@ usersRouter.post('/',
 usersRouter.delete('/:userId',
     adminAuthorizationMiddleware,
     async (req: Request, res: Response) => {
-        const userIsDeleted = await usersService.deleteUser(+req.params.userId)
+        const userIsDeleted = await usersService.deleteUser(req.params.userId)
         if(userIsDeleted){
             res.sendStatus(204)
         }else{

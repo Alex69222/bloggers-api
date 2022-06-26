@@ -4,19 +4,19 @@ import {transformToPaginationView} from "../helpers/transformToPaginationView";
 
 export type CommentType = {
     _id: ObjectId
-    id: number
-    postId: number
+    id: string
+    postId: string
     content: string
-    userId: number
+    userId: string
     userLogin: string
     addedAt: Date
 }
 
 export const commentsService ={
-    async addComment(userId: number, userLogin: string, content: string, postID: number){
+    async addComment(userId: string, userLogin: string, content: string, postID: string){
         const newComment = {
             _id: new ObjectId(),
-            id: +(new Date()),
+            id: Number(new Date()).toString(),
             content,
             userId,
             postId: postID,
@@ -27,17 +27,17 @@ export const commentsService ={
         const {_id, postId, ...resultComment} = newComment
         return resultComment
     },
-    async getCommentsForSpecifiedPost(PageNumber: number, PageSize: number, postId: number){
+    async getCommentsForSpecifiedPost(PageNumber: number, PageSize: number, postId: string){
         const {commentsCount, comments} = await commentsRepository.getCommentsForSpecifiedPost(PageNumber, PageSize, postId)
         return transformToPaginationView(commentsCount,PageSize, PageNumber, comments)
     },
-    async findCommentById(commentId: number): Promise<CommentType | null>{
+    async findCommentById(commentId: string): Promise<CommentType | null>{
         return await commentsRepository.getCommentById(commentId)
     },
-    async updateComment(commentId: number, content: string):Promise<boolean>{
+    async updateComment(commentId: string, content: string):Promise<boolean>{
         return await commentsRepository.updateComment(commentId, content)
     },
-    async deleteComment(commentId: number): Promise<boolean>{
+    async deleteComment(commentId: string): Promise<boolean>{
         return await commentsRepository.deleteComment(commentId)
     }
 
