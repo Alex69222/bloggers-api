@@ -85,7 +85,7 @@ postsRouter.post('/',
 postsRouter.delete('/:id',
     adminAuthorizationMiddleware,
     async (req: Request, res: Response) => {
-        const postIsDeleted = await postsService.deletePost(+req.params.id)
+        const postIsDeleted = await postsService.deletePost(req.params.id)
         if (postIsDeleted) {
             res.sendStatus(204)
         } else {

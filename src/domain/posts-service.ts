@@ -20,7 +20,7 @@ export const postsService = {
         const postIsUpdated  = await  postsRepository.updatePost(title,shortDescription, content, bloggerId, id)
         return postIsUpdated
     },
-    async deletePost(id: number){
+    async deletePost(id: string){
         const postIsDeleted = await  postsRepository.deletePost(id)
         return postIsDeleted
     }

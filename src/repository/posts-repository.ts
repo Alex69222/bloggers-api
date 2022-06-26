@@ -54,7 +54,7 @@ export const postsRepository = {
         })
         return postIsUpdated.matchedCount === 1
     },
-    async deletePost(id: number) {
+    async deletePost(id: string) {
         const postIsDeleted = await postsCollection.deleteOne({id})
         return postIsDeleted.deletedCount === 1
     }
