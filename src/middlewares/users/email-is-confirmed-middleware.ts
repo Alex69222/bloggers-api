@@ -7,7 +7,7 @@ export const emailIsConfirmedMiddleware = body('email')
         if (!user) {
             return Promise.reject('User with this email doesn\'t exsist')
         } else if (user.emailConfirmation.isConfirmed) {
-
+            return Promise.reject('User with this email is already confirmed')
         } else {
             return true
         }
