@@ -10,6 +10,8 @@ import {requestFrequencyMiddleware} from "../middlewares/users/request-frequency
 import {emailManager} from "../managers/email-manager";
 import {loginFrequencyMiddleware} from "../middlewares/users/login-frequency-middleware";
 import {uniqueEmailValidation} from "../middlewares/users/unique-email-validation";
+import {confirmationCodeMiddleware} from "../middlewares/users/confirmation-code-middleware";
+import {emailIsConfirmedMiddleware} from "../middlewares/users/email-is-confirmed-middleware";
 
 export const authRouter = Router({})
 
@@ -41,6 +43,8 @@ authRouter.post('/registration',
     })
 authRouter.post('/registration-confirmation',
     requestFrequencyMiddleware,
+    confirmationCodeMiddleware,
+    validationResultMiddleware,
     async (
         req: Request<{}, null, { code: string }, {}>,
         res: Response<null>) => {
@@ -51,6 +55,7 @@ authRouter.post('/registration-confirmation',
 authRouter.post('/registration-email-resending',
     requestFrequencyMiddleware,
     emailValidationMiddleware,
+    emailIsConfirmedMiddleware,
     validationResultMiddleware,
     async (req: Request<{}, null | string, { email: string }, {}>, res: Response<null | string>) => {
         let emailResended = await usersService.resendConfirmationEmail(req.body.email)

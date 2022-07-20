@@ -30,7 +30,7 @@ export const commentsRepository = {
         const postsArr = await commentsCollection.aggregate<Omit<CommentType, '_id' | 'postId'> & {id: string}>([
             {"$match": {"_id": new ObjectId(commentId)}},
             {"$addFields": {"id": {$toString: "$_id"}}},
-            {"$project": {"_id": 0}}
+            {"$project": {"_id": 0, "postId": 0}}
         ]).toArray()
 
         return postsArr[0] || null
