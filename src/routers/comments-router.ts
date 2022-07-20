@@ -1,5 +1,5 @@
 import {Request, Response, Router} from "express";
-import {commentsService} from "../domain/comments-service";
+import {commentsService, CommentType} from "../domain/comments-service";
 import {commentContentValidationMiddleware} from "../middlewares/comments/comment-content-validation-middleware";
 import {authMiddleware} from "../middlewares/users/auth-middleware";
 import {validationResultMiddleware} from "../middlewares/validation-result-middleware";
@@ -8,7 +8,7 @@ import {validationResultMiddleware} from "../middlewares/validation-result-middl
 export const commentsRouter = Router({})
 
 commentsRouter.get('/:commentId',
-    async (req: Request, res: Response) => {
+    async (req: Request<{commentId: string}, Omit<CommentType, '_id' | 'postId'> & { id: string } | null, {}, {}>, res: Response<Omit<CommentType, '_id' | 'postId'> & { id: string } | null>) => {
         const comment = await commentsService.findCommentById(req.params.commentId)
         if(comment){
             res.status(200).send(comment)
@@ -21,7 +21,7 @@ commentsRouter.put('/:commentId',
     authMiddleware,
     commentContentValidationMiddleware,
     validationResultMiddleware,
-    async (req: Request, res: Response) => {
+    async (req: Request<{commentId: string}, null, {content: string}, {}>, res: Response<null>) => {
         const comment = await commentsService.findCommentById(req.params.commentId)
         if(!comment) return res.sendStatus(404)
         if(comment.userId !== req.user!.id) return res.sendStatus(403)
@@ -37,7 +37,7 @@ commentsRouter.put('/:commentId',
 
 commentsRouter.delete('/:commentId',
     authMiddleware,
-    async (req: Request, res: Response) => {
+    async (req: Request<{commentId: string}, null, {}, {}>, res: Response<null>) => {
         const comment = await commentsService.findCommentById(req.params.commentId)
         if(!comment) return res.sendStatus(404)
         if(comment.userId !== req.user!.id) return res.sendStatus(403)

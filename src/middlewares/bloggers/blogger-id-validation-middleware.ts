@@ -3,8 +3,8 @@ import {bloggersService} from "../../domain/bloggers-service";
 // import {findBlogger} from "../../repository/bloggers-repository";
 
 export const bloggerIdValidationMiddleware = body('bloggerId')
-    .isNumeric()
-    .withMessage('blogger id should be a number')
+    .isString()
+    .withMessage('blogger id should be a string')
     .custom(async (value) =>{
         const bloggerExists = await bloggersService.getBloggerById(value)
         if(!bloggerExists){

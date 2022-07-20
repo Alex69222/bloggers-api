@@ -5,8 +5,11 @@ import {runDb} from "./repository/db";
 import {usersRouter} from "./routers/users-router";
 import {authRouter} from "./routers/auth-router";
 import {commentsRouter} from "./routers/comments-router";
+import {emailRouter} from "./routers/email-router";
+import {testingRouter} from "./routers/testing-router";
 
 const app = express();
+app.set('trust proxy', true)
 app.use(express.json())
 const port = process.env.PORT || 3003
 
@@ -19,7 +22,8 @@ app.use('/api/posts', postsRouter)
 app.use('/api/users', usersRouter)
 app.use('/api/auth', authRouter)
 app.use('/api/comments', commentsRouter)
-
+app.use('/api/send', emailRouter)
+app.use('/api/testing', testingRouter)
 const startApp = async () => {
     await runDb()
     app.listen(port, () => {
