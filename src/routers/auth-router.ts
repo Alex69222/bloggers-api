@@ -9,6 +9,7 @@ import {emailValidationMiddleware} from "../middlewares/users/email-validation-m
 import {requestFrequencyMiddleware} from "../middlewares/users/request-frequency-middleware";
 import {emailManager} from "../managers/email-manager";
 import {loginFrequencyMiddleware} from "../middlewares/users/login-frequency-middleware";
+import {uniqueEmailValidation} from "../middlewares/users/unique-email-validation";
 
 export const authRouter = Router({})
 
@@ -28,6 +29,7 @@ authRouter.post('/login',
 authRouter.post('/registration',
     requestFrequencyMiddleware,
     uniqueLoginValidation,
+    uniqueEmailValidation,
     userLoginValidationMiddleware,
     userPasswordValidationMiddleware,
     emailValidationMiddleware,
