@@ -80,7 +80,7 @@ export const usersService = {
     async checkCredentials(login: string, password: string): Promise<UserType | false> {
         const user = await usersRepository.findByLogin(login)
         if (!user) return false
-        if (!user.emailConfirmation.isConfirmed) return false
+        // if (!user.emailConfirmation.isConfirmed) return false
         const passwordMatches = await bcrypt.compare(password, user.accountData.password)
         return passwordMatches ? user : false
     },
