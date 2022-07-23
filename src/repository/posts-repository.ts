@@ -19,7 +19,6 @@ export const postsRepository = {
         return {postsCount, posts}
     },
     async getPostById(id: string):Promise<Omit<PostType, '_id'> & {id: string} | null> {
-        console.log(2132)
         if(!ObjectId.isValid(id)) return null
         const posts = await postsCollection.aggregate<Omit<PostType, '_id'> & {id: string}>([
             {"$match": {"_id" : new ObjectId(id)}},

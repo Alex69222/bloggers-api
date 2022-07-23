@@ -18,6 +18,7 @@ export type UserType = {
         email: string
         password: string
         createdAt: Date
+        refreshTokens: Array<string>
     }
     emailConfirmation: EmailConfirmationData
 }
@@ -43,7 +44,8 @@ export const usersService = {
                 userName: login,
                 email,
                 password: passwordHash,
-                createdAt: new Date()
+                createdAt: new Date(),
+                refreshTokens: []
             },
             emailConfirmation: {
                 confirmationCode: uuidv4(),
@@ -120,6 +122,22 @@ export const usersService = {
         } catch (err) {
             return false
         }
+    },
+    async addRefreshToken(_id: ObjectId, refreshToken: string): Promise<boolean>{
+        const result = await usersRepository.addRefreshToken(_id, refreshToken)
+        return result
+    },
+    async removeRefreshToken(_id: ObjectId, refreshToken: string): Promise<boolean>{
+        const result = await usersRepository.removeRefreshToken(_id, refreshToken)
+        return result
+    },
+    async removeManyTokens(_id: ObjectId, tokensArray: Array<string>): Promise<boolean>{
+        const result = await usersRepository.removeManyRefreshTokens(_id, tokensArray)
+        return result
+    },
+    async getAllUserTokens(_id: ObjectId,): Promise<Array<string> | null>{
+        const tokens = await usersRepository.getAllUserTokens(_id)
+        return tokens || null
     }
 
 

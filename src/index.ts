@@ -1,4 +1,5 @@
 import express, {Request, Response} from 'express'
+import cookieParser from 'cookie-parser'
 import {bloggersRouter} from "./routers/bloggers-router";
 import {postsRouter} from "./routers/posts-router";
 import {runDb} from "./repository/db";
@@ -11,6 +12,7 @@ import {testingRouter} from "./routers/testing-router";
 const app = express();
 app.set('trust proxy', true)
 app.use(express.json())
+app.use(cookieParser())
 const port = process.env.PORT || 3003
 
 app.get('/', (req: Request, res: Response) => {

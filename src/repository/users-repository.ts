@@ -56,5 +56,22 @@ export const usersRepository = {
     async updateConfirmationData(_id: ObjectId, newConfirmationData:EmailConfirmationData):Promise<boolean>{
         const result = await usersCollection.updateOne({_id}, {"$set": {'emailConfirmation' : newConfirmationData}})
         return result.modifiedCount === 1
+    },
+    async addRefreshToken(_id: ObjectId, token: string): Promise<boolean>{
+        const result = await usersCollection.findOneAndUpdate({_id}, {$push: {'accountData.refreshTokens': token}})
+        return !!result.ok
+    },
+    async removeRefreshToken(_id: ObjectId, token: string): Promise<boolean>{
+        const result = await usersCollection.findOneAndUpdate({_id}, {$pull: {'accountData.refreshTokens': token}})
+        return !!result.ok
+    },
+    async removeManyRefreshTokens(_id: ObjectId, tokensArray: Array<string>): Promise<boolean>{
+        const result = await usersCollection.findOneAndUpdate({_id},
+            {$pull: {'accountData.refreshTokens': {'$in': tokensArray}}})
+        return !!result.ok
+    },
+    async getAllUserTokens(_id: ObjectId): Promise<Array<string> | null>{
+        const result = await usersCollection.findOne({_id}, {projection: {'accountData.refreshTokens': 1, _id: 0}})
+        return result?.accountData.refreshTokens || null
     }
 }

@@ -12,6 +12,10 @@ import {loginFrequencyMiddleware} from "../middlewares/users/login-frequency-mid
 import {uniqueEmailValidation} from "../middlewares/users/unique-email-validation";
 import {confirmationCodeMiddleware} from "../middlewares/users/confirmation-code-middleware";
 import {emailIsConfirmedMiddleware} from "../middlewares/users/email-is-confirmed-middleware";
+import {refreshTokenMiddleware} from "../middlewares/users/refresh-token-middleware";
+import {ObjectId} from "mongodb";
+import {revokeRefreshTokenMiddleware} from "../middlewares/users/revoke-refresh-token-middleware";
+import {authMiddleware} from "../middlewares/users/auth-middleware";
 
 export const authRouter = Router({})
 
@@ -21,10 +25,15 @@ authRouter.post('/login',
     // validationResultMiddleware,
     loginFrequencyMiddleware,
     requestFrequencyMiddleware,
-    async (req: Request<{}, { token: string; } | string, { login: string, password: string }, {}>, res: Response<{ token: string; } | string>) => {
+    async (req: Request<{}, { token: string } | string, { login: string, password: string }, {}>, res: Response<{ token: string } | string>) => {
         const user = await usersService.checkCredentials(req.body.login, req.body.password)
         if (!user) return res.status(401).send('login or password is incorrect')
-        const token = await jwtService.createJWT(user)
+        const token = await jwtService.createJWT(user._id)
+        const refreshToken = await jwtService.createRefreshJWT(user._id)
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: true
+        })
         res.status(200).send({token})
     }
 )
@@ -59,7 +68,32 @@ authRouter.post('/registration-email-resending',
     validationResultMiddleware,
     async (req: Request<{}, null | string, { email: string }, {}>, res: Response<null | string>) => {
         let emailResended = await usersService.resendConfirmationEmail(req.body.email)
-        if(!emailResended) return res.status(400).send('Something went wrong. Please, try again later')
+        if (!emailResended) return res.status(400).send('Something went wrong. Please, try again later')
         res.sendStatus(204)
+    }
+)
+authRouter.post('/refresh-token',
+    refreshTokenMiddleware,
+    async (req: Request<{}, { accessToken: string } | null, {}, {}>, res: Response<{ accessToken: string } | null>) => {
+        const token = await jwtService.createJWT(new ObjectId(req.user!.id))
+        const refreshToken = await jwtService.createRefreshJWT(new ObjectId(req.user!.id))
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: true
+        })
+        res.send({accessToken: token})
+    }
+)
+authRouter.post('/logout',
+    revokeRefreshTokenMiddleware
+)
+authRouter.post('/me',
+    authMiddleware,
+    async (req: Request, res: Response) => {
+        res.send({
+            'email': req.user!.accountData.email,
+            'login': req.user!.accountData.userName,
+            'userId': req.user!.id.toString()
+        })
     }
 )
