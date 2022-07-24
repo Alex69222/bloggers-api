@@ -87,7 +87,7 @@ authRouter.post('/refresh-token',
 authRouter.post('/logout',
     revokeRefreshTokenMiddleware
 )
-authRouter.post('/me',
+authRouter.get('/me',
     authMiddleware,
     async (req: Request, res: Response) => {
         res.send({
