@@ -25,16 +25,16 @@ authRouter.post('/login',
     // validationResultMiddleware,
     loginFrequencyMiddleware,
     requestFrequencyMiddleware,
-    async (req: Request<{}, { token: string } | string, { login: string, password: string }, {}>, res: Response<{ token: string } | string>) => {
+    async (req: Request<{}, { accessToken: string } | string, { login: string, password: string }, {}>, res: Response<{ accessToken: string } | string>) => {
         const user = await usersService.checkCredentials(req.body.login, req.body.password)
         if (!user) return res.status(401).send('login or password is incorrect')
-        const token = await jwtService.createJWT(user._id)
+        const accessToken = await jwtService.createJWT(user._id)
         const refreshToken = await jwtService.createRefreshJWT(user._id)
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
             secure: true
         })
-        res.status(200).send({token})
+        res.status(200).send({accessToken})
     }
 )
 authRouter.post('/registration',
@@ -75,13 +75,13 @@ authRouter.post('/registration-email-resending',
 authRouter.post('/refresh-token',
     refreshTokenMiddleware,
     async (req: Request<{}, { accessToken: string } | null, {}, {}>, res: Response<{ accessToken: string } | null>) => {
-        const token = await jwtService.createJWT(new ObjectId(req.user!.id))
+        const accessToken = await jwtService.createJWT(new ObjectId(req.user!.id))
         const refreshToken = await jwtService.createRefreshJWT(new ObjectId(req.user!.id))
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
             secure: true
         })
-        res.send({accessToken: token})
+        res.send({accessToken})
     }
 )
 authRouter.post('/logout',
