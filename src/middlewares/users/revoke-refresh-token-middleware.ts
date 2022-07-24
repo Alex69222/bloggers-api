@@ -12,6 +12,9 @@ export const  revokeRefreshTokenMiddleware = async (req: Request, res: Response)
         return
     }
     const refreshToken = req.cookies.refreshToken
+    if (tokensBlackList[refreshToken]) {
+        return res.sendStatus(401)
+    }
     tokensBlackList[refreshToken] = true
     const userId = await jwtService.getUserIdByToken(refreshToken)
     if(!userId) return res.sendStatus(401)
