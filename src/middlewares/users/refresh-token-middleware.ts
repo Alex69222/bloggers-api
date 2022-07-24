@@ -4,14 +4,19 @@ import {usersService} from "../../domain/users-service";
 import {ObjectId} from "mongodb";
 import jwt from "jsonwebtoken";
 import {settings} from "../../settings";
+import {tokensBlackList} from "./revoke-refresh-token-middleware";
 
 export const refreshTokenMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     if (!req.cookies.refreshToken) {
-        res.sendStatus(401)
-        return
+        return res.sendStatus(401)
     }
+
     const refreshToken = req.cookies.refreshToken
+    if (tokensBlackList[refreshToken]) {
+        return res.sendStatus(401)
+    }
     const userId = await jwtService.getUserIdByToken(refreshToken)
+    tokensBlackList[refreshToken] = true
     if (userId) {
         const oldRefreshTokenIsRemoved = await usersService.removeRefreshToken(userId, refreshToken)
         const userTokens = await usersService.getAllUserTokens(userId)
@@ -24,8 +29,8 @@ export const refreshTokenMiddleware = async (req: Request, res: Response, next: 
                     invalidTokens.push(t)
                 }
             }
-            if(userTokens.length){
-                await usersService.removeManyTokens(userId,invalidTokens )
+            if (userTokens.length) {
+                await usersService.removeManyTokens(userId, invalidTokens)
             }
         }
         req.user = await usersService.findUserById(userId)
