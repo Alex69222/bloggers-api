@@ -17,6 +17,7 @@ export const refreshTokenMiddleware = async (req: Request, res: Response, next: 
     }
     const userId = await jwtService.getUserIdByToken(refreshToken)
     tokensBlackList[refreshToken] = true
+    console.log(tokensBlackList)
     if (userId) {
         const oldRefreshTokenIsRemoved = await usersService.removeRefreshToken(userId, refreshToken)
         const userTokens = await usersService.getAllUserTokens(userId)
@@ -39,3 +40,4 @@ export const refreshTokenMiddleware = async (req: Request, res: Response, next: 
         return res.sendStatus(401)
     }
 }
+
