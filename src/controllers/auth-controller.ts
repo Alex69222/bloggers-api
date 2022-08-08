@@ -15,7 +15,7 @@ export class AuthController {
         const {accessToken, refreshToken} = await this.usersService.createAccessAndRefreshTokens(user._id)
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
-            // secure: true
+            secure: true
         })
         res.status(200).send({accessToken})
     }
@@ -53,7 +53,7 @@ export class AuthController {
         } = await this.usersService.createAccessAndRefreshTokens(new ObjectId(req.user!.id))
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
-            // secure: true
+            secure: true
         })
         res.send({accessToken})
     }
