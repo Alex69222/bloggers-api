@@ -1,6 +1,6 @@
 import {body} from "express-validator";
-import {usersService} from "../../domain/users-service";
-
+import {UsersService} from "../../domain/users-service";
+import {usersService} from "../../composition-root";
 export const uniqueEmailValidation = body('email')
     .custom(async value => {
         const emailAlreadyExists = await usersService.findUserByEmail(value)

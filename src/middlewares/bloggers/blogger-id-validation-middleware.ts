@@ -1,7 +1,8 @@
 import {body} from "express-validator";
-import {bloggersService} from "../../domain/bloggers-service";
+import {BloggersService} from "../../domain/bloggers-service";
+import {bloggersService} from "../../composition-root";
+// import {bloggersService} from "../../domain/bloggers-service";
 // import {findBlogger} from "../../repository/bloggers-repository";
-
 export const bloggerIdValidationMiddleware = body('bloggerId')
     .isString()
     .withMessage('blogger id should be a string')

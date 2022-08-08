@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer'
+import {injectable} from "inversify";
 
 
 let transport = nodemailer.createTransport({
@@ -9,7 +10,8 @@ let transport = nodemailer.createTransport({
     }
 })
 
-export const emailAdapter = {
+@injectable()
+export class EmailAdapter{
     async sendEmail(to: string, subject: string, html: string){
        let info = await transport.sendMail({
            from: 'BLOGGERS <noreply.notifications@gmail.com>',

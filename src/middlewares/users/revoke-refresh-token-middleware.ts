@@ -1,6 +1,8 @@
 import {Request, Response} from "express";
-import {jwtService} from "../../application/jwt-service";
-import {usersService} from "../../domain/users-service";
+import {UsersService} from "../../domain/users-service";
+import {JwtService} from "../../application/jwt-service";
+import {jwtService, usersService} from "../../composition-root";
+
 
 export interface BlackList {
     [token: string]: boolean
@@ -22,7 +24,7 @@ export const  revokeRefreshTokenMiddleware = async (req: Request, res: Response)
 
     const userId = await jwtService.getUserIdByToken(refreshToken)
     if(!userId) return res.sendStatus(401)
-    await usersService.removeRefreshToken(userId, refreshToken)
+    // await usersService.removeRefreshToken(userId, refreshToken)
     res.clearCookie('refreshToken')
     res.sendStatus(204)
 }

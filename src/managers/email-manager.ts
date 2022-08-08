@@ -1,10 +1,16 @@
-import {emailAdapter} from "../adapters/email-adapter";
+import {
+    EmailAdapter,
+} from "../adapters/email-adapter";
 import {UserType} from "../domain/users-service";
+import {inject, injectable} from "inversify";
 
-export const emailManager = {
+@injectable()
+export class EmailManager{
+    constructor(@inject(EmailAdapter) protected emailAdapter: EmailAdapter ) {
+    }
     async sendEmail(to: string, subject: string, html: string) {
-        await emailAdapter.sendEmail(to, subject, html)
-    },
+        await this.emailAdapter.sendEmail(to, subject, html)
+    }
     async sendEmailConfirmationMessage(newUser: UserType) {
         const html = `
             <h1>Hello!</h1> 
@@ -14,7 +20,7 @@ export const emailManager = {
         `
         const to = newUser.accountData.email
         const subject = 'Registration at Bloggers Service'
-        await emailAdapter.sendEmail(to, subject, html)
+        await this.emailAdapter.sendEmail(to, subject, html)
 
     }
 }

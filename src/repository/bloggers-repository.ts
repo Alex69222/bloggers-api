@@ -1,62 +1,55 @@
-import {bloggersCollection, postsCollection} from "./db";
+import {bloggersCollection, BloggersModelClass, postsCollection} from "./db";
 import {BloggerType} from "../domain/bloggers-service";
 import {PostType} from "../domain/posts-service";
 import {ObjectId} from "mongodb";
-
-export const bloggersRepository = {
-
-    async getBloggers(searchNameTerm: string | null, pageNumber: number, pageSize: number): Promise<{ bloggersCount: number, bloggers: (Omit<BloggerType, '_id'> & { id: string })[] }> {
+import {injectable} from "inversify";
+import {idMapper} from "../helpers/id-mapper";
+@injectable()
+export class BloggersRepository{
+    async getBloggers(searchNameTerm: string | null, pageNumber: number, pageSize: number): Promise<{ bloggersCount: number, bloggers: (Omit<BloggerType, "_id"> & {id: string})[] }> {
 
         const filter: { name?: any } = {}
         if (searchNameTerm) {
-            filter.name = {$regex: searchNameTerm}
+            filter.name = {$regex: searchNameTerm, $options: '-i'}
         }
-        const bloggersCount = await bloggersCollection.countDocuments(filter)
-        const bloggers = await bloggersCollection
-            .aggregate<Omit<BloggerType, '_id'> & { id: string }>([
-                {"$match": filter},
-                {
-                    "$addFields": {
-                        "id": {$toString: "$_id"}
-                    }
-                },
-                {"$project": {"_id": 0}},
-                {"$skip": (pageNumber - 1) * pageSize},
-                {"$limit": pageSize}
-            ])
-            .toArray()
-        return {bloggers, bloggersCount}
-    },
-    async getBloggerById(id: string): Promise<Omit<BloggerType, '_id' > & { id: string } | null> {
-        if(!ObjectId.isValid(id)) return null
-        const bloggers = await bloggersCollection.aggregate<Omit<BloggerType, '_id'> & { id: string }>([
-            {"$match": {"_id" : new ObjectId(id)}},
-            {
-                "$addFields": {
-                    "id": {$toString: "$_id"}
-                }
-            },
-            {"$project": {"_id": 0}}
-        ]).toArray()
-        return bloggers[0] || null
+        const bloggersCount = await BloggersModelClass.count(filter)
 
+        let bloggersDb = await BloggersModelClass.find(filter)
+            .skip((pageNumber - 1) * pageSize)
+            .limit(pageSize)
+            .lean()
+        const bloggers: (Omit<BloggerType, "_id"> & {id: string})[] = idMapper(bloggersDb)
+        return { bloggersCount, bloggers}
+    }
+    async getBloggerById(id: string): Promise<Omit<BloggerType, '_id'> & { id: string } | null> {
+        if (!ObjectId.isValid(id)) return null
+        const blogger: (Omit<BloggerType, "_id"> & {id: string}) | null = await  BloggersModelClass.findById(id).lean()
+        if(!blogger) return null
+        return idMapper(blogger)
 
-    },
+    }
     async createBlogger(newBlogger: BloggerType): Promise<ObjectId | null> {
-        const result = await bloggersCollection.insertOne(newBlogger)
-        return result.insertedId || null
-
-    },
+        try {
+            const bloggerInstance = new BloggersModelClass(newBlogger)
+            await bloggerInstance.save()
+            return newBlogger._id
+        } catch (e) {
+            console.log(e)
+            return null
+        }
+    }
     async updateBlogger(id: string, name: string, youtubeUrl: string): Promise<boolean> {
-        if(!ObjectId.isValid(id)) return false
-        const bloggerIsUpdated = await bloggersCollection.updateOne({"_id": new ObjectId(id)}, {$set: {name, youtubeUrl}})
-        return bloggerIsUpdated.matchedCount === 1
-    },
+        if (!ObjectId.isValid(id)) return false
+        const updateResult = await BloggersModelClass.findByIdAndUpdate(new ObjectId(id), {name, youtubeUrl})
+        if(!updateResult) return false
+        return true
+    }
     async deleteBlogger(id: string): Promise<boolean> {
-        if(!ObjectId.isValid(id)) return false
-        const bloggerIsDeleted = await bloggersCollection.deleteOne({"_id": new ObjectId(id)})
-        return bloggerIsDeleted.deletedCount === 1
-    },
+        if (!ObjectId.isValid(id)) return false
+        const deleteResult = await BloggersModelClass.findByIdAndDelete(new ObjectId(id))
+        if(!deleteResult) return  false
+        return true
+    }
     async getBloggerPosts(pageNumber: number, pageSize: number, id: string): Promise<{ bloggerPostsCount: number, bloggerPosts: Omit<PostType, '_id'>[] }> {
         const bloggerPostsCount = await postsCollection.count({bloggerId: id})
         const bloggerPosts = await postsCollection.find({bloggerId: id})
@@ -68,3 +61,4 @@ export const bloggersRepository = {
         return {bloggerPostsCount, bloggerPosts}
     }
 }
+// export const bloggersRepository = new BloggersRepository()

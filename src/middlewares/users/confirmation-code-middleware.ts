@@ -1,6 +1,7 @@
 import {body} from "express-validator";
-import {usersRepository} from "../../repository/users-repository";
-
+import {UsersRepository} from "../../repository/users-repository";
+// import {usersRepository} from "../../repository/users-repository";
+const usersRepository = new UsersRepository()
 export const confirmationCodeMiddleware = body('code')
 
     .custom(async value => {

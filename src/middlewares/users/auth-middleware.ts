@@ -1,6 +1,5 @@
 import {NextFunction, Request, Response} from "express";
-import {jwtService} from "../../application/jwt-service";
-import {usersService} from "../../domain/users-service";
+import {jwtService, usersService} from "../../composition-root";
 
 export const authMiddleware = async (req: Request<{},null,{},{}>, res: Response<null>, next: NextFunction) =>{
     if(!req.headers.authorization){
