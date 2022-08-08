@@ -22,13 +22,13 @@ export class  CommentsRepository{
         const comments = idMapper(dbComments)
         comments.forEach(p => {
             if (userId) {
-                const userLikeStatus = p.likesInfo.totalInfo.find(el => el.userId === userId)
+                const userLikeStatus = p.totalInfo.find(el => el.userId === userId)
                 if (userLikeStatus) {
                     p.likesInfo.myStatus = userLikeStatus.likeStatus
                 }
             }
 
-            delete p.likesInfo.totalInfo
+            delete p.totalInfo
         })
         return {
             commentsCount,
@@ -40,12 +40,12 @@ export class  CommentsRepository{
         const dbComment = await CommentModelClass.findById(new ObjectId(commentId), {postId: 0}).lean()
         const comment = idMapper(dbComment)
         if (userId) {
-            const userLikeStatus = comment.likesInfo.totalInfo.find(el => el.userId === userId)
+            const userLikeStatus = comment.totalInfo.find(el => el.userId === userId)
             if (userLikeStatus) {
                 comment.likesInfo.myStatus = userLikeStatus.likeStatus
             }
         }
-        delete comment.likesInfo.totalInfo
+        delete comment.totalInfo
         return comment || null
     }
     async updateComment(commentId: string, content: string): Promise<boolean> {
@@ -68,7 +68,7 @@ export class  CommentsRepository{
         if (!comment) return false
 
 
-        const currentUserLikeStatus = comment.likesInfo.totalInfo.find(s => s.userId === userId)
+        const currentUserLikeStatus = comment.totalInfo.find(s => s.userId === userId)
 
         if (!currentUserLikeStatus) {
             if (likeStatus === "Like") {
@@ -91,11 +91,11 @@ export class  CommentsRepository{
                 comment.likesInfo.dislikesCount++
             }
 
-            const currentIndex = comment.likesInfo.totalInfo.indexOf(currentUserLikeStatus)
-            comment.likesInfo.totalInfo.splice(currentIndex, 1)
+            const currentIndex = comment.totalInfo.indexOf(currentUserLikeStatus)
+            comment.totalInfo.splice(currentIndex, 1)
         }
 
-        comment.likesInfo.totalInfo.push({
+        comment.totalInfo.push({
             addedAt: new Date(),
             userId,
             login,
