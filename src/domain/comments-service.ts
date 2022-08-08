@@ -11,6 +11,7 @@ export type CommentType = {
     userLogin: string
     addedAt: Date
     likesInfo: {
+        totalInfo: any;
         likesCount: number
         dislikesCount: number,
         myStatus: string
@@ -61,7 +62,7 @@ export class CommentsService{
         } = await this.commentsRepository.getCommentsForSpecifiedPost(PageNumber, PageSize, postId, userId)
         return transformToPaginationView<Omit<CommentType, '_id' | "postId">  & { id: string; }>(commentsCount, PageSize, PageNumber, comments)
     }
-    async findCommentById(commentId: string, userId: string | undefined): Promise<Omit<CommentType, '_id' | 'postId'> & { id: string } | null> {
+    async findCommentById(commentId: string, userId?: string | undefined): Promise<Omit<CommentType, '_id' | 'postId'> & { id: string } | null> {
         return await this.commentsRepository.getCommentById(commentId, userId)
     }
     async updateComment(commentId: string, content: string): Promise<boolean> {

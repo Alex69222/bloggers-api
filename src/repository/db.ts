@@ -85,9 +85,9 @@ const CommentsSchema = new mongoose.Schema<CommentType>({
     likesInfo:{
         likesCount: Number,
         dislikesCount: Number,
-        totalInfo: [TotalLikesInfoSchema],
         myStatus: String
-    }
+    },
+    totalInfo: [TotalLikesInfoSchema]
 },{versionKey: false})
 
 export const BloggersModelClass = mongoose.model('bloggers', BloggerSchema, )
