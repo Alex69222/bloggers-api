@@ -11,7 +11,6 @@ export type CommentType = {
     userLogin: string
     addedAt: Date
     likesInfo: {
-        totalInfo: any;
         likesCount: number
         dislikesCount: number,
         myStatus: string
