@@ -11,9 +11,9 @@ export class PostsRepository {
         const dbPosts = await PostModelClass.find({}).skip(((pageNumber - 1) * pageSize)).limit(pageSize).lean()
         let posts = idMapper(dbPosts)
 
-        posts.forEach(p => {
+        posts.forEach((p: any) => {
             if (userId) {
-                const userLikeStatus = p.extendedLikesInfo.totalInfo.find(el => el.userId === userId)
+                const userLikeStatus = p.extendedLikesInfo.totalInfo.find((el: { userId: string; }) => el.userId === userId)
                 if (userLikeStatus) {
                     p.extendedLikesInfo.myStatus = userLikeStatus.likeStatus
                 }
@@ -31,7 +31,7 @@ export class PostsRepository {
         const post = idMapper(dbPost)
 
         if (userId) {
-            const userLikeStatus = post.extendedLikesInfo.totalInfo.find(el => el.userId === userId)
+            const userLikeStatus = post.extendedLikesInfo.totalInfo.find((el: { userId: string; }) => el.userId === userId)
             if (userLikeStatus) {
                 post.extendedLikesInfo.myStatus = userLikeStatus.likeStatus
             }

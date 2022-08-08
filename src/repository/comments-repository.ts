@@ -20,9 +20,9 @@ export class  CommentsRepository{
         const commentsCount = await CommentModelClass.count({postId})
         const dbComments = await CommentModelClass.find({postId}, {postId: 0}).skip(((PageNumber - 1) * PageSize)).limit(PageSize).lean()
         const comments = idMapper(dbComments)
-        comments.forEach(p => {
+        comments.forEach((p: any) => {
             if (userId) {
-                const userLikeStatus = p.totalInfo.find(el => el.userId === userId)
+                const userLikeStatus = p.totalInfo.find((el: { userId: string; }) => el.userId === userId) || null
                 if (userLikeStatus) {
                     p.likesInfo.myStatus = userLikeStatus.likeStatus
                 }
@@ -40,7 +40,7 @@ export class  CommentsRepository{
         const dbComment = await CommentModelClass.findById(new ObjectId(commentId), {postId: 0}).lean()
         const comment = idMapper(dbComment)
         if (userId) {
-            const userLikeStatus = comment.totalInfo.find(el => el.userId === userId)
+            const userLikeStatus = comment.totalInfo.find((el: { userId: string; }) => el.userId === userId)
             if (userLikeStatus) {
                 comment.likesInfo.myStatus = userLikeStatus.likeStatus
             }
