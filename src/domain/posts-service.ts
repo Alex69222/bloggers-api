@@ -19,7 +19,7 @@ export type extendedLikesInfo = {
     dislikesCount: number
     newestLikes: NewestLikes
     myStatus: "Like" | "Dislike" | "None"
-    totalInfo:Array<{
+    totalInfo?:Array<{
         addedAt: Date
         userId: string
         login: string
@@ -45,7 +45,7 @@ export class PostsService {
         @inject(PostsLikesRepository) protected postsLikesRepository: PostsLikesRepository) {
     }
 
-    async createPost(title: string, shortDescription: string, content: string, bloggerId: string): Promise<Omit<PostType, "_id"> & { id: string } | null> {
+    async createPost(title: string, shortDescription: string, content: string, bloggerId: string): Promise<Omit<PostType, "_id" > & { id: string } | null> {
         const blogger = await this.bloggersService.getBloggerById(bloggerId)
         const newPost = {
             _id: new ObjectId(),
@@ -68,10 +68,17 @@ export class PostsService {
         const insertedId = await this.postsRepository.createPost(newPost)
         if (!insertedId) return null
 
-        let {_id, ...createdPost} = newPost
+        let {_id,   ...createdPost} = newPost
+
         return {
+            ...createdPost,
             id: insertedId.toString(),
-            ...createdPost
+            extendedLikesInfo:{
+                likesCount: 0,
+                dislikesCount: 0,
+                myStatus: LIKES.NONE,
+                newestLikes: [],
+            }
         }
     }
 

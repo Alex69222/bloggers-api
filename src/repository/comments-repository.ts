@@ -38,6 +38,7 @@ export class  CommentsRepository{
     async getCommentById(commentId: string, userId: string | undefined): Promise<Omit<CommentType, '_id' | 'postId'> & { id: string } | null> {
         if (!ObjectId.isValid(commentId)) return null
         const dbComment = await CommentModelClass.findById(new ObjectId(commentId), {postId: 0}).lean()
+        if(!dbComment) return null
         const comment = idMapper(dbComment)
         if (userId) {
             const userLikeStatus = comment.totalInfo.find((el: { userId: string; }) => el.userId === userId)
@@ -46,7 +47,7 @@ export class  CommentsRepository{
             }
         }
         delete comment.totalInfo
-        return comment || null
+        return comment
     }
     async updateComment(commentId: string, content: string): Promise<boolean> {
         if(!ObjectId.isValid(commentId)) return false
