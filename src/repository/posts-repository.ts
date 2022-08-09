@@ -28,6 +28,7 @@ export class PostsRepository {
     async getPostById(id: string, userId: string | undefined): Promise<Omit<PostType, '_id'> & { id: string } | null> {
         if (!ObjectId.isValid(id)) return null
         const dbPost = await PostModelClass.findById(new ObjectId(id)).lean()
+        if(!dbPost) return null
         const post = idMapper(dbPost)
 
         if (userId) {
@@ -49,7 +50,7 @@ export class PostsRepository {
             return null
         }
     }
-
+// sdfs
     async updatePost(title: string, shortDescription: string, content: string, bloggerId: string, id: string): Promise<boolean> {
         if (!ObjectId.isValid(id)) return false
         const postIsUpdated = await PostModelClass.findByIdAndUpdate(new ObjectId(id), {
