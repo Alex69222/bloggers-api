@@ -118,7 +118,7 @@ export class PostsRepository {
             }
             if (post.totalInfo[i].likeStatus === "Like") {
                 const {likeStatus, ...rest} = post.totalInfo[i]
-                newestLikes.unshift(rest)
+                newestLikes.push(rest)
                 newestLikesCount++
             }
         }
