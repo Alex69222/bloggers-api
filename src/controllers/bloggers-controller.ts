@@ -34,7 +34,7 @@ export class BloggersController {
         res.send(bloggerPosts)
     }
 
-    async createPostForBlogger(req: Request<{ id: string }, Omit<PostType, "_id"> | null, { title: string, shortDescription: string, content: string }, {}>, res: Response<Omit<PostType, "_id"> | null>) {
+    async createPostForBlogger(req: Request<{ id: string }, Omit<PostType, "_id"> | null, { title: string, shortDescription: string, content: string }, {}>, res: Response<Omit<PostType, "_id" | "totalInfo"> | null>) {
         const blogger = await this.bloggersService.getBloggerById(req.params.id)
         if (!blogger) return res.sendStatus(404)
         const newPost = await this.postsService.createPost(req.body.title, req.body.shortDescription, req.body.content, req.params.id)

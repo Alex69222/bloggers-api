@@ -71,9 +71,9 @@ const PostsSchema = new mongoose.Schema<PostType>({
         likesCount: Number,
         dislikesCount: Number,
         newestLikes: [NewestLikesSchema],
-        totalInfo: [TotalLikesInfoSchema],
         myStatus: String
-    }
+    },
+    totalInfo: [TotalLikesInfoSchema],
 }, {versionKey: false})
 const CommentsSchema = new mongoose.Schema<CommentType>({
     _id: ObjectId,

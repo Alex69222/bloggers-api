@@ -13,13 +13,13 @@ export class PostsRepository {
 
         posts.forEach((p: any) => {
             if (userId) {
-                const userLikeStatus = p.extendedLikesInfo.totalInfo.find((el: { userId: string; }) => el.userId === userId)
+                const userLikeStatus = p.totalInfo.find((el: { userId: string; }) => el.userId === userId)
                 if (userLikeStatus) {
                     p.extendedLikesInfo.myStatus = userLikeStatus.likeStatus
                 }
             }
 
-            delete p.extendedLikesInfo.totalInfo
+            delete p.totalInfo
         })
 
         return {postsCount, posts}
@@ -32,12 +32,12 @@ export class PostsRepository {
         const post = idMapper(dbPost)
 
         if (userId) {
-            const userLikeStatus = post.extendedLikesInfo.totalInfo.find((el: { userId: string; }) => el.userId === userId)
+            const userLikeStatus = post.totalInfo.find((el: { userId: string; }) => el.userId === userId)
             if (userLikeStatus) {
                 post.extendedLikesInfo.myStatus = userLikeStatus.likeStatus
             }
         }
-        delete post.extendedLikesInfo.totalInfo
+        delete post.totalInfo
         return post
     }
 
@@ -76,7 +76,7 @@ export class PostsRepository {
         if (!post) return false
 
 
-        const currentUserLikeStatus = post.extendedLikesInfo.totalInfo.find(s => s.userId === userId)
+        const currentUserLikeStatus = post.totalInfo.find(s => s.userId === userId)
 
         if (!currentUserLikeStatus) {
             if (likeStatus === "Like") {
@@ -99,11 +99,11 @@ export class PostsRepository {
                 post.extendedLikesInfo.dislikesCount++
             }
 
-            const currentIndex = post.extendedLikesInfo.totalInfo.indexOf(currentUserLikeStatus)
-            post.extendedLikesInfo.totalInfo.splice(currentIndex, 1)
+            const currentIndex = post.totalInfo.indexOf(currentUserLikeStatus)
+            post.totalInfo.splice(currentIndex, 1)
         }
 
-        post.extendedLikesInfo.totalInfo.push({
+        post.totalInfo.push({
             addedAt: new Date(),
             userId,
             login,
@@ -112,12 +112,12 @@ export class PostsRepository {
         const newestLikes = []
         let newestLikesCount = 0
 
-        for (let i = post.extendedLikesInfo.totalInfo.length - 1; i >= 0; i--) {
+        for (let i = post.totalInfo.length - 1; i >= 0; i--) {
             if (newestLikesCount === 3) {
                 break
             }
-            if (post.extendedLikesInfo.totalInfo[i].likeStatus === "Like") {
-                const {likeStatus, ...rest} = post.extendedLikesInfo.totalInfo[i]
+            if (post.totalInfo[i].likeStatus === "Like") {
+                const {likeStatus, ...rest} = post.totalInfo[i]
                 newestLikes.unshift(rest)
                 newestLikesCount++
             }

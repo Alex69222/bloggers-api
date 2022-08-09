@@ -50,7 +50,7 @@ export class PostsController {
         res.sendStatus(204)
     }
 
-    async createPost(req: Request<{}, Omit<PostType, "_id"> & { id: string } | string, { title: string, shortDescription: string, content: string, bloggerId: string }>, res: Response<Omit<PostType, "_id"> & { id: string } | string>) {
+    async createPost(req: Request<{}, Omit<PostType, "_id"> & { id: string } | string, { title: string, shortDescription: string, content: string, bloggerId: string }>, res: Response<Omit<PostType, "_id" | "totalInfo"> & { id: string } | string>) {
         const newPost = await this.postsService.createPost(req.body.title, req.body.shortDescription, req.body.content, req.body.bloggerId)
         if (!newPost) return res.status(400).send('Something went wrong. Please try again later.')
         res.status(201).send(newPost)
