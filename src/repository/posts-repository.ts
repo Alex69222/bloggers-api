@@ -50,7 +50,6 @@ export class PostsRepository {
             return null
         }
     }
-// sdfs
     async updatePost(title: string, shortDescription: string, content: string, bloggerId: string, id: string): Promise<boolean> {
         if (!ObjectId.isValid(id)) return false
         const postIsUpdated = await PostModelClass.findByIdAndUpdate(new ObjectId(id), {
