@@ -2,6 +2,8 @@ import {NextFunction, Request, Response} from "express";
 import {validationResult} from "express-validator";
 
 export const validationResultMiddleware = (req: Request, res: Response, next: NextFunction) =>{
+    console.log('body:')
+    console.log(req.body)
     const customResponseValidation = validationResult.withDefaults({
         formatter: error => {
             return{
