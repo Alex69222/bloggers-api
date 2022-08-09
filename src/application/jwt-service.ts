@@ -15,11 +15,11 @@ export class JwtService{
     constructor() {
     }
     async createJWT(_id: ObjectId): Promise<string> {
-        const token = jwt.sign({userId: _id}, settings.JWT_SECRET, {expiresIn: 10})
+        const token = jwt.sign({userId: _id}, settings.JWT_SECRET, {expiresIn: '1h'})
         return token
     }
     async createRefreshJWT(_id: ObjectId): Promise<string> {
-        const refreshToken = jwt.sign({userId: _id}, settings.JWT_SECRET, {expiresIn: 20})
+        const refreshToken = jwt.sign({userId: _id}, settings.JWT_SECRET, {expiresIn: '2h'})
         // const refreshTokenAdded = await this.usersService.addRefreshToken(_id, refreshToken)
         return refreshToken
     }
