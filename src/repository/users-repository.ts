@@ -24,7 +24,9 @@ export class UsersRepository {
     }
 
     async findUserById(userId: ObjectId): Promise<Omit<UserType, '_id' | 'password'> & {id: string} | null> {
+        console.log(userId)
         const dbUser = await UserModelClass.findById(userId).lean()
+        // asda
         const user = idMapper(dbUser)
         return user || null
     }
@@ -55,6 +57,7 @@ export class UsersRepository {
         const result = await UserModelClass.updateOne({_id}, {'emailConfirmation' : newConfirmationData})
         return result.modifiedCount === 1
     }
+    // dfs
     // async addRefreshToken(_id: ObjectId, token: string): Promise<boolean>{
     //     const result = await usersCollection.findOneAndUpdate({_id}, {$push: {'accountData.refreshTokens': token}})
     //     return !!result.ok

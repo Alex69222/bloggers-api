@@ -6,6 +6,7 @@ export const authMiddleware = async (req: Request<{},null,{},{}>, res: Response<
         res.sendStatus(401)
         return
     }
+    // adassdas
     const token = req.headers.authorization.split(' ')[1]
     const userId = await jwtService.getUserIdByToken(token)
     if(userId){
