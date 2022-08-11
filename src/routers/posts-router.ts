@@ -52,7 +52,7 @@ postsRouter.delete('/:id',
     adminAuthorizationMiddleware,
     postsController.deletePost.bind(postsController))
 
-postsRouter.put('/:id/like-status',
+postsRouter.put('/:postId/like-status',
     authMiddleware,
     validObjectIdMiddleware,
     likeStatusMiddleware,
