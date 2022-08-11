@@ -17,7 +17,7 @@ export class BloggersController {
 
     async getBloggers(req: Request<{}, PaginationType<Omit<BloggerType, "_id"> & { id: string }>, {}, PaginationQueryType & { SearchNameTerm?: string | string[] }>, res: Response<PaginationType<Omit<BloggerType, "_id"> & { id: string }>>) {
         const q = req.query
-        const bloggers = await this.bloggersService.getBloggers(searchTermHandler(req.query.SearchNameTerm), ...pagePropsHandler(req.query.PageNumber, req.query.PageSize))
+        const bloggers = await this.bloggersService.getBloggers(searchTermHandler(req.query.SearchNameTerm), ...pagePropsHandler(req.query.PageNumber, req.query.PageSize), )
         res.send(bloggers)
     }
 
@@ -28,9 +28,10 @@ export class BloggersController {
     }
 
     async getBloggersPosts(req: Request<{ id: string }, PaginationType<Omit<PostType, '_id'>> | null, {}, PaginationQueryType>, res: Response<PaginationType<Omit<PostType, '_id'>> | null>) {
+        const userId = req.user?.id
         const blogger = await this.bloggersService.getBloggerById(req.params.id)
         if (!blogger) return res.sendStatus(404)
-        const bloggerPosts = await this.bloggersService.getBloggerPosts(...pagePropsHandler(req.query.PageNumber, req.query.PageSize), req.params.id)
+        const bloggerPosts = await this.bloggersService.getBloggerPosts(...pagePropsHandler(req.query.PageNumber, req.query.PageSize), req.params.id, userId)
         res.send(bloggerPosts)
     }
 

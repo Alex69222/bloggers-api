@@ -44,7 +44,7 @@ export class CommentsController {
         }
     }
     async setCommentLikeStatus(req: Request<{commentId: string},null,{likeStatus: string},{}>, res: Response<null>){
-        console.log(req.params.commentId)
+        // console.log(req.params.commentId)
         const comment = await this.commentsService.findCommentById(req.params.commentId)
         if(!comment) return res.sendStatus(404)
         await this.commentsService.setCommentLikeStatus(req.params.commentId, req.user!.id, req.user!.accountData.userName, req.body.likeStatus)

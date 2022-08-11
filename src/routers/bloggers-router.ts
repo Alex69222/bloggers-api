@@ -8,12 +8,13 @@ import {shortDescriptionValidationMiddleware} from "../middlewares/posts/short-d
 import {postContentValidationMiddleware} from "../middlewares/posts/post-content-validation-middleware";
 import {container} from "../composition-root";
 import {BloggersController} from "../controllers/bloggers-controller";
+import {checkUserMiddleware} from "../middlewares/users/check-user-middleware";
 
 const bloggersController = container.resolve(BloggersController)
 export const bloggersRouter = Router({})
 bloggersRouter.get('/', bloggersController.getBloggers.bind(bloggersController))
 bloggersRouter.get('/:id', bloggersController.getBloggerById.bind(bloggersController))
-bloggersRouter.get('/:id/posts', bloggersController.getBloggersPosts.bind(bloggersController))
+bloggersRouter.get('/:id/posts',checkUserMiddleware, bloggersController.getBloggersPosts.bind(bloggersController))
 bloggersRouter.post('/:id/posts',
     adminAuthorizationMiddleware,
     titleValidationMiddleware,

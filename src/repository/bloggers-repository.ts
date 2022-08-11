@@ -6,7 +6,7 @@ import {injectable} from "inversify";
 import {idMapper} from "../helpers/id-mapper";
 @injectable()
 export class BloggersRepository{
-    async getBloggers(searchNameTerm: string | null, pageNumber: number, pageSize: number): Promise<{ bloggersCount: number, bloggers: (Omit<BloggerType, "_id"> & {id: string})[] }> {
+    async getBloggers(searchNameTerm: string | null, pageNumber: number, pageSize: number ): Promise<{ bloggersCount: number, bloggers: (Omit<BloggerType, "_id"> & {id: string})[] }> {
 
         const filter: { name?: any } = {}
         if (searchNameTerm) {
@@ -50,12 +50,18 @@ export class BloggersRepository{
         if(!deleteResult) return  false
         return true
     }
-    async getBloggerPosts(pageNumber: number, pageSize: number, id: string): Promise<{ bloggerPostsCount: number, bloggerPosts: (Omit<PostType, '_id'> & { id: string })[] }> {
+    async getBloggerPosts(pageNumber: number, pageSize: number, id: string, userId: string | undefined): Promise<{ bloggerPostsCount: number, bloggerPosts: (Omit<PostType, '_id'> & { id: string })[] }> {
         const bloggerPostsCount = await postsCollection.count({bloggerId: id})
         const bpostsDB = await PostModelClass.find({bloggerId: id}).skip(((pageNumber - 1) * pageSize)).limit(pageSize).lean()
          let bloggerPosts = idMapper(bpostsDB)
 
         bloggerPosts.forEach((bp: any) =>{
+            if (userId) {
+                const userLikeStatus = bp.totalInfo.find((el: { userId: string; }) => el.userId === userId)
+                if (userLikeStatus) {
+                    bp.extendedLikesInfo.myStatus = userLikeStatus.likeStatus
+                }
+            }
             delete bp.totalInfo
         })
         return {bloggerPostsCount, bloggerPosts}

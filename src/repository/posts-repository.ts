@@ -7,6 +7,7 @@ import {idMapper} from "../helpers/id-mapper";
 @injectable()
 export class PostsRepository {
     async getPosts(pageNumber: number, pageSize: number, userId: string | undefined): Promise<{ postsCount: number, posts: (Omit<PostType, '_id'> & { id: string })[] }> {
+        // console.log(userId)
         const postsCount = await PostModelClass.count({})
         const dbPosts = await PostModelClass.find({}).skip(((pageNumber - 1) * pageSize)).limit(pageSize).lean()
         let posts = idMapper(dbPosts)

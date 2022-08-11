@@ -14,6 +14,7 @@ export class PostsController {
 
     async getPosts(req: Request<{}, PaginationType<Omit<PostType, "_id"> & { id: string }>, {}, { PageNumber: string, PageSize: string }>, res: Response<PaginationType<Omit<PostType, "_id"> & { id: string }>>) {
         const userId = req.user?.id
+        // console.log(userId)
         const posts = await this.postsService.getPosts(...pagePropsHandler(req.query.PageNumber, req.query.PageSize), userId)
         res.send(posts)
     }
