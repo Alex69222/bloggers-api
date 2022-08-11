@@ -1,4 +1,4 @@
-import {bloggersCollection, BloggersModelClass, postsCollection} from "./db";
+import {bloggersCollection, BloggersModelClass, PostModelClass, postsCollection} from "./db";
 import {BloggerType} from "../domain/bloggers-service";
 import {PostType} from "../domain/posts-service";
 import {ObjectId} from "mongodb";
@@ -50,14 +50,14 @@ export class BloggersRepository{
         if(!deleteResult) return  false
         return true
     }
-    async getBloggerPosts(pageNumber: number, pageSize: number, id: string): Promise<{ bloggerPostsCount: number, bloggerPosts: Omit<PostType, '_id'>[] }> {
+    async getBloggerPosts(pageNumber: number, pageSize: number, id: string): Promise<{ bloggerPostsCount: number, bloggerPosts: (Omit<PostType, '_id'> & { id: string })[] }> {
         const bloggerPostsCount = await postsCollection.count({bloggerId: id})
-        const bloggerPosts = await postsCollection.find({bloggerId: id})
-            .skip((pageNumber - 1) * pageSize)
-            .limit(pageSize)
-            .project<Omit<PostType, '_id'>>({_id: 0})
-            .toArray()
+        const bpostsDB = await PostModelClass.find({bloggerId: id}).skip(((pageNumber - 1) * pageSize)).limit(pageSize).lean()
+         let bloggerPosts = idMapper(bpostsDB)
 
+        bloggerPosts.forEach((bp: any) =>{
+            delete bp.totalInfo
+        })
         return {bloggerPostsCount, bloggerPosts}
     }
 }
