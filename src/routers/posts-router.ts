@@ -11,6 +11,7 @@ import {container} from "../composition-root";
 import {PostsController} from "../controllers/posts-controller";
 import {likeStatusMiddleware} from "../middlewares/like-status-middleware";
 import {checkUserMiddleware} from "../middlewares/users/check-user-middleware";
+import {validObjectIdMiddleware} from "../middlewares/valid-object-id-middleware";
 
 
 const postsController = container.resolve(PostsController)
@@ -53,6 +54,7 @@ postsRouter.delete('/:id',
 
 postsRouter.put('/:id/like-status',
     authMiddleware,
+    validObjectIdMiddleware,
     likeStatusMiddleware,
     validationResultMiddleware,
     postsController.setPostLikeStatus.bind(postsController)
