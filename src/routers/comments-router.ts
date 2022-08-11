@@ -5,6 +5,7 @@ import {validationResultMiddleware} from "../middlewares/validation-result-middl
 import {container} from "../composition-root";
 import {CommentsController} from "../controllers/comments-controller";
 import {checkUserMiddleware} from "../middlewares/users/check-user-middleware";
+import {likeStatusMiddleware} from "../middlewares/like-status-middleware";
 
 const commentsController = container.resolve(CommentsController)
 export const commentsRouter = Router({})
@@ -24,5 +25,7 @@ commentsRouter.delete('/:commentId',
 
 commentsRouter.put('/:commentId/like-status',
     authMiddleware,
+    likeStatusMiddleware,
+    validationResultMiddleware,
     commentsController.setCommentLikeStatus.bind(commentsController)
 )
