@@ -43,11 +43,11 @@ export class CommentsController {
             return res.sendStatus(404)
         }
     }
-    async setCommentLikeStatus(req: Request<{commentId: string},null,{likeStatus: string},{}>, res: Response<null>){
+    async setCommentLikeStatus(req: Request<{id: string},null,{likeStatus: string},{}>, res: Response<null>){
         // console.log(req.params.commentId)
-        const comment = await this.commentsService.findCommentById(req.params.commentId)
+        const comment = await this.commentsService.findCommentById(req.params.id)
         if(!comment) return res.sendStatus(404)
-        await this.commentsService.setCommentLikeStatus(req.params.commentId, req.user!.id, req.user!.accountData.userName, req.body.likeStatus)
+        await this.commentsService.setCommentLikeStatus(req.params.id, req.user!.id, req.user!.accountData.userName, req.body.likeStatus)
         res.sendStatus(204)
     }
 }

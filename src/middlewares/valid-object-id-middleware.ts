@@ -3,8 +3,7 @@ import {ObjectId} from "mongodb";
 
 
 export const validObjectIdMiddleware = async (req: Request, res: Response, next: NextFunction) => {
-    if (req.params.postId && !ObjectId.isValid(req.params.postId) ||
-        req.params.commentId && !ObjectId.isValid(req.params.commentId)
+    if (req.params.id && !ObjectId.isValid(req.params.id)
     ) {
         return res.sendStatus(404)
     } else {

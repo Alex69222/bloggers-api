@@ -24,7 +24,7 @@ commentsRouter.delete('/:commentId',
     commentsController.deleteComment.bind(commentsController)
 )
 
-commentsRouter.put('/:commentId/like-status',
+commentsRouter.put('/:id/like-status',
     authMiddleware,
     validObjectIdMiddleware,
     likeStatusMiddleware,

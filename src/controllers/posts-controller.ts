@@ -63,11 +63,11 @@ export class PostsController {
         res.sendStatus(204)
     }
 
-    async setPostLikeStatus(req: Request<{postId: string},null,{likeStatus: string},{}>, res: Response<null>){
+    async setPostLikeStatus(req: Request<{id: string},null,{likeStatus: string},{}>, res: Response<null>){
        try{
-           const post = await this.postsService.getPostById(req.params.postId)
+           const post = await this.postsService.getPostById(req.params.id)
            if(!post) return res.sendStatus(404)
-           await this.postsService.setPostLikeStatus(req.params.postId, req.user!.id, req.user!.accountData.userName, req.body.likeStatus)
+           await this.postsService.setPostLikeStatus(req.params.id, req.user!.id, req.user!.accountData.userName, req.body.likeStatus)
            res.sendStatus(204)
        }catch (e){
            console.log('ERROR')

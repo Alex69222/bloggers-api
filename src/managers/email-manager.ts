@@ -24,3 +24,14 @@ export class EmailManager{
 
     }
 }
+
+@injectable()
+export class  FakeEmailManger extends EmailManager{
+    async sendEmail(to: string, subject: string, html: string): Promise<void> {
+        console.log('email was sent')
+    }
+
+    async sendEmailConfirmationMessage(newUser: UserType): Promise<void> {
+        console.log('confirmation email was sent')
+    }
+}
