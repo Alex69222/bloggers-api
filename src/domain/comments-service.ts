@@ -54,7 +54,7 @@ export class CommentsService{
         }
 
     }
-    async getCommentsForSpecifiedPost(PageNumber: number, PageSize: number, postId: string , userId: string | undefined): Promise<PaginationType<Omit<CommentType, '_id' | "postId">>> {
+    async getCommentsForSpecifiedPost(PageNumber: number, PageSize: number, postId: string , userId: string | undefined): Promise<PaginationType<Omit<CommentType, '_id' | "postId" > & { id: string; }>> {
         const {
             commentsCount,
             comments

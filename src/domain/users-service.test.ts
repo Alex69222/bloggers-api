@@ -75,7 +75,6 @@ describe("integration tests for users-service", () => {
             let email = busyEmail
             let login = "alex2"
             const result = await usersService.createUser(login, email, "123")
-            console.log(result)
             expect(result).toBe(null)
         })
         it(" this.emailManager.sendEmailConfirmationMessage should be called ", async () => {
@@ -98,7 +97,7 @@ describe("integration tests for users-service", () => {
         it("should return false for expired confirmation code", async () => {
             let user = createUser('supercode', addMinutes(new Date(), -1), 'confirm@mail.com', false, 'confirmEmailLogin');
             await UserModelClass.insertMany([user])
-            const result = await usersService.confirmEmail("supercode")
+            await usersService.confirmEmail("supercode")
 
             const userModel = await UserModelClass.findById(user._id)
             expect(userModel!.emailConfirmation.isConfirmed).toBeFalsy()
@@ -120,7 +119,7 @@ describe("integration tests for users-service", () => {
         it("should return true for existing and not expired confirmation code", async () => {
             let user = createUser('supercode3', addHours(new Date(), 1), 'emailik3@mail.com', false, "confirmEmailLogin3");
             await UserModelClass.insertMany([user])
-            const result = await usersService.confirmEmail("supercode3")
+            await usersService.confirmEmail("supercode3")
 
             const userModel = await UserModelClass.findById(user._id)
             expect(userModel!.emailConfirmation.isConfirmed).toBeTruthy()
@@ -153,7 +152,6 @@ describe("integration tests for users-service", () => {
 
         })
     })
-
     describe("findUserById", () => {
         beforeAll(async () => {
             await mongoose.connection.db.dropDatabase()
@@ -223,5 +221,41 @@ describe("integration tests for users-service", () => {
 
         })
     })
+    describe("checkCredentials", () => {
+        let login = "login"
+        let email = "email@mail.com"
+        let password = "password"
+        beforeAll(async () => {
+            await mongoose.connection.db.dropDatabase()
+            await usersService.createUser(login, email, password)
+        })
+        it("should return user, as password is correct", async () => {
+            let res = await usersService.checkCredentials(login, password)
+            expect(res).toBeTruthy()
+        })
+        it("should return false, as password is incorrect", async () => {
+            let res = await usersService.checkCredentials(login, password + '1')
+            expect(res).toBeFalsy()
+        })
+    })
+    describe("resendConfirmationEmail", ()=>{
+        let login = "login"
+        let email = "email@mail.com"
+        let password = "password"
+        beforeAll(async () => {
+            await mongoose.connection.db.dropDatabase()
+            await usersService.createUser(login, email, password)
+        })
+        it("should resend confirmation email", async () =>{
+            const spy = jest.spyOn(emailManager, 'sendEmailConfirmationMessage')
+            await usersService.resendConfirmationEmail(email)
+            expect(spy).toBeCalled()
+        })
+
+        // it("should not resend confirmation email, while user with this email doesn't exist", async () =>{
+        //     const spy2 = jest.spyOn(emailManager, 'sendEmailConfirmationMessage')
+        //     await usersService.resendConfirmationEmail(email + '1')
+        //     expect(spy2).not.toBeCalled()
+        // })
+    })
 })
-///
