@@ -25,7 +25,6 @@ export class UsersRepository {
 
     async findUserById(userId: ObjectId): Promise<Omit<UserType, '_id' | 'password'> & {id: string} | null> {
         const dbUser = await UserModelClass.findById(userId).lean()
-        // asda
         const user = idMapper(dbUser)
         return user || null
     }

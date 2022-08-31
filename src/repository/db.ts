@@ -6,6 +6,8 @@ import {BloggerType} from "../domain/bloggers-service";
 import {NewestLikes, PostType} from "../domain/posts-service";
 import mongoose from "mongoose";
 import {LIKES} from "../types/types";
+import {AnswerType, PlayerType, QuizGameType} from "../domain/quiz-service";
+import { IQuestion } from "../domain/questions-service";
 
 export const client = new MongoClient(settings.MONGO_URI)
 export const db = client.db('bloggers-posts')
@@ -29,8 +31,21 @@ const NewestLikesSchema = new mongoose.Schema({
     userId: String,
     login: String
 }, {_id: false})
+const AnswerSchema = new mongoose.Schema<AnswerType>({
+    questionId: String,
+    answerStatus: String,
+    addedAt: Date
+})
+const PlayerSchema = new mongoose.Schema<PlayerType>({
 
+    answers: [AnswerSchema],
+    user: {
+        id: String,
+        login: String
+    },
+    score: Number
 
+}, {_id: false})
 const BloggerSchema = new mongoose.Schema<BloggerType>({
     _id: ObjectId,
     name: {type: String, required: true},
@@ -64,10 +79,10 @@ const PostsSchema = new mongoose.Schema<PostType>({
     title: {type: String, required: true},
     shortDescription: {type: String, required: true},
     addedAt: Date,
-    content : {type: String, required: true},
+    content: {type: String, required: true},
     bloggerId: {type: String, required: true},
     bloggerName: {type: String, required: true},
-    extendedLikesInfo:{
+    extendedLikesInfo: {
         likesCount: Number,
         dislikesCount: Number,
         newestLikes: [NewestLikesSchema],
@@ -82,24 +97,44 @@ const CommentsSchema = new mongoose.Schema<CommentType>({
     userId: {type: String, required: true},
     userLogin: {type: String, required: true},
     addedAt: Date,
-    likesInfo:{
+    likesInfo: {
         likesCount: Number,
         dislikesCount: Number,
         myStatus: String
     },
     totalInfo: [TotalLikesInfoSchema]
-},{versionKey: false})
+}, {versionKey: false})
 
-export const BloggersModelClass = mongoose.model('bloggers', BloggerSchema, )
+const QuizGameSchema = new mongoose.Schema<QuizGameType>({
+    _id: ObjectId,
+    firstPlayer: PlayerSchema,
+    secondPlayer: {type: PlayerSchema, default: null},
+    questions: [{id: String, body: String}],
+    status: String,
+    pairCreatedDate: Date,
+    startGameDate: {type: Date, default: null},
+    finishGameDate: {type: Date, default: null},
+}, {versionKey: false})
+
+const QuestionSchema = new mongoose.Schema<IQuestion>({
+    _id: ObjectId,
+    body: String,
+    answer: String
+}, {versionKey: false})
+
+export const BloggersModelClass = mongoose.model('bloggers', BloggerSchema,)
 export const UserModelClass = mongoose.model('users', UserSchema)
 export const PostModelClass = mongoose.model('posts', PostsSchema)
 export const CommentModelClass = mongoose.model('comments', CommentsSchema)
+export const QuizModelClass = mongoose.model('quiz', QuizGameSchema)
+
+export const QuestionModelClass = mongoose.model('questions', QuestionSchema)
 
 export async function runDb() {
     try {
         await client.connect()
         await client.db('bloggers-posts').command({ping: 1})
-        await mongoose.connect(settings.MONGOOSE_URI ,{dbName: 'bloggers-posts'})
+        await mongoose.connect(settings.MONGOOSE_URI, {dbName: 'bloggers-posts'})
         console.log('Successfully connected to mongo atlas')
     } catch (e) {
         console.log('Connection to mongo atlas failed')

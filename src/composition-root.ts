@@ -23,6 +23,9 @@ import {postsLikesCollection} from "./repository/db";
 import {QuizController} from "./controllers/quiz-controller";
 import {QuizService} from "./domain/quiz-service";
 import {QuizRepository} from "./repository/quiz-repository";
+import {QuestionsRepository} from "./repository/questions-repository";
+import {QuestionsService} from "./domain/questions-service";
+import {QuestionsController} from "./controllers/questions-controller";
 
 
 const emailAdapter = new EmailAdapter()
@@ -55,6 +58,10 @@ export const postsController = new PostsController(commentsService, postsService
 
 
 export const emailController = new EmailController(emailManager)
+
+const questionsRepository = new QuestionsRepository()
+const questionsService = new QuestionsService(questionsRepository)
+const questionsController = new QuestionsController(questionsService)
 
 
 const quizRepository = new QuizRepository()
@@ -94,3 +101,7 @@ container.bind<PostsLikesRepository>(PostsLikesRepository).to(PostsLikesReposito
 container.bind<QuizRepository>(QuizRepository).to(QuizRepository)
 container.bind<QuizService>(QuizService).to(QuizService)
 container.bind<QuizController>(QuizController).to(QuizController)
+
+container.bind<QuestionsRepository>(QuestionsRepository).to(QuestionsRepository)
+container.bind<QuestionsService>(QuestionsService).to(QuestionsService)
+container.bind<QuestionsController>(QuestionsController).to(QuestionsController)

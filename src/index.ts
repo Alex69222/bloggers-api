@@ -9,6 +9,7 @@ import {commentsRouter} from "./routers/comments-router";
 import {emailRouter} from "./routers/email-router";
 import {testingRouter} from "./routers/testing-router";
 import {quizRouter} from "./routers/quiz-router";
+import {questionsRouter} from "./routers/questions-router";
 
 const app = express();
 app.set('trust proxy', true)
@@ -27,6 +28,7 @@ app.use('/api/auth', authRouter)
 app.use('/api/comments', commentsRouter)
 app.use('/api/send', emailRouter)
 app.use('/api/pair-game-quiz', quizRouter)
+app.use('/api/questions', questionsRouter)
 app.use('/api/testing', testingRouter)
 const startApp = async () => {
     await runDb()
