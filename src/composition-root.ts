@@ -65,7 +65,7 @@ const questionsController = new QuestionsController(questionsService)
 
 
 const quizRepository = new QuizRepository()
-const quizService = new QuizService(quizRepository)
+const quizService = new QuizService(quizRepository, questionsService)
 const quizController = new QuizController(quizService)
 
 export const container = new Container()

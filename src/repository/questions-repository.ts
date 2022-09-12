@@ -1,10 +1,11 @@
 import {injectable} from "inversify";
 import {IQuestion} from "../domain/questions-service";
 import {QuestionModelClass} from "./db";
+import {ObjectId} from "mongodb";
 
 @injectable()
 export class QuestionsRepository {
-    async getQuestions(PageNumber: number, PageSize: number):Promise<IQuestion[]> {
+    async getQuestions(PageNumber: number, PageSize: number): Promise<IQuestion[]> {
         return QuestionModelClass.find({}).skip((PageNumber - 1) * PageSize).limit(PageSize)
     }
 
@@ -22,11 +23,20 @@ export class QuestionsRepository {
         }
     }
 
-    async getQuestionById() {
-
+    async getQuestionById(id: ObjectId): Promise<IQuestion | null> {
+        return QuestionModelClass.findById(id).lean()
     }
 
-    async deleteQuestionById() {
+    async deleteQuestionById(id: ObjectId): Promise<IQuestion | null> {
+        return QuestionModelClass.findByIdAndDelete(id).lean()
+    }
 
+    async getRandomQuestions(count: number): Promise<Array<IQuestion> | null> {
+        try {
+            const randomQuestions = await QuestionModelClass.aggregate([{$sample: {size: count}}])
+            return randomQuestions
+        } catch (e) {
+            return null
+        }
     }
 }

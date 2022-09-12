@@ -109,7 +109,7 @@ const QuizGameSchema = new mongoose.Schema<QuizGameType>({
     _id: ObjectId,
     firstPlayer: PlayerSchema,
     secondPlayer: {type: PlayerSchema, default: null},
-    questions: [{id: String, body: String}],
+    questions: [{id: String, body: String, answer: String}],
     status: String,
     pairCreatedDate: Date,
     startGameDate: {type: Date, default: null},
