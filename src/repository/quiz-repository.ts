@@ -1,6 +1,6 @@
 import {injectable} from "inversify";
 import {QuizModelClass} from "./db";
-import {QuizGameStatusType, QuizGameType} from "../domain/quiz-service";
+import {AnswerStatusType, AnswerType, QuizGameStatusType, QuizGameType} from "../domain/quiz-service";
 import {ObjectId} from "mongodb";
 
 @injectable()
@@ -15,6 +15,7 @@ export class QuizRepository {
             await quizGameInstance.save()
             return quizGameInstance
         } catch (e) {
+            console.log(e)
             return null
         }
     }
@@ -33,26 +34,43 @@ export class QuizRepository {
         }, {new: true})
     }
 
-    async createOrConnect() {
-        return 'create or connect - repo'
-    }
-
-    async sendAnswer() {
-        return 'answer is sent - repo'
-    }
 
     async getMyCurrentGame(userId: string): Promise<QuizGameType | null> {
         return QuizModelClass.findOne({
             $and: [
                 {$or: [{status: QuizGameStatusType.Active}, {status: QuizGameStatusType.PendingSecondPlayer}]},
-                {$or: [{'firstPlayer.user.id': userId}, {'secondPlayer.user.id': userId}]
-            }]
+                {
+                    $or: [{'firstPlayer.user.id': userId}, {'secondPlayer.user.id': userId}]
+                }]
 
-        })
+        }).lean()
     }
 
-    async getGameById() {
-        return 'game by id - repo'
+    async getMyActiveGame(userId: string): Promise<QuizGameType | null> {
+        return QuizModelClass.findOne({
+            $and: [
+                {status: QuizGameStatusType.Active},
+                {
+                    $or: [{'firstPlayer.user.id': userId}, {'secondPlayer.user.id': userId}]
+                }]
+
+        }).lean()
+    }
+
+    async addAnswer(gameId: ObjectId, currentPlayerQueryString: string, answer: AnswerType): Promise<QuizGameType | null> {
+        return QuizModelClass.findOneAndUpdate({gameId}, {$push: {[currentPlayerQueryString + ".answers"]: answer}})
+    }
+
+    async updateInGameUserScores(gameId: ObjectId, currentPlayerQueryString: string, scores: number): Promise<QuizGameType | null> {
+        return QuizModelClass.findOneAndUpdate({gameId}, {$inc: {[currentPlayerQueryString + ".scores"]: scores}})
+    }
+
+    async finishGame(gameId: ObjectId): Promise<QuizGameType | null> {
+        return QuizModelClass.findByIdAndUpdate(gameId, {status: QuizGameStatusType.Finished, finishGameDate: new Date()})
+    }
+
+    async getGameById(gameId: ObjectId): Promise<QuizGameType | null> {
+        return QuizModelClass.findById(gameId)
     }
 
     async getMyGames() {

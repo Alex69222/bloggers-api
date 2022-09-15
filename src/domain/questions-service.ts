@@ -2,6 +2,7 @@ import {inject, injectable} from "inversify";
 import {QuestionsRepository} from "../repository/questions-repository";
 import {ObjectId} from "mongodb";
 import {PaginationType, transformToPaginationView} from "../helpers/transformToPaginationView";
+import {idMapper} from "../helpers/id-mapper";
 
 export interface IQuestion {
     _id: ObjectId
@@ -39,7 +40,8 @@ export class QuestionsService {
     async deleteQuestionById(id: ObjectId): Promise<IQuestion | null> {
         return this.questionsRepository.deleteQuestionById(id)
     }
-    async getRandomQuestions(count: number): Promise<Array<IQuestion> | null>{
-        return this.questionsRepository.getRandomQuestions(count)
+    async getRandomQuestions(count: number): Promise<Array<(Omit<IQuestion, '_id'> & {id: string})>  | null>{
+        const questions = await this.questionsRepository.getRandomQuestions(count)
+        return idMapper(questions)
     }
 }

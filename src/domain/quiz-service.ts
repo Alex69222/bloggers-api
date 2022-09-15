@@ -2,6 +2,7 @@ import {inject, injectable} from "inversify";
 import {QuizRepository} from "../repository/quiz-repository";
 import {ObjectId} from "mongodb";
 import {QuestionsService} from "./questions-service";
+import {QuizModelClass} from "../repository/db";
 
 export enum QuizGameStatusType {
     PendingSecondPlayer = "PendingSecondPlayer",
@@ -10,13 +11,13 @@ export enum QuizGameStatusType {
 
 }
 
-enum AnswerStatusType {
+export enum AnswerStatusType {
     Correct = "Correct",
     Incorrect = "Incorrect"
 }
 
 export type QuestionType = {
-    _id: ObjectId
+    id: string
     body: string
     answer: string
 }
@@ -50,11 +51,11 @@ export class QuizService {
                 @inject(QuestionsService) protected questionService: QuestionsService) {
     }
 
-    async createOrConnect(userId: string, userLogin: string): Promise<QuizGameType | null>  {
+    async createOrConnect(userId: string, userLogin: string): Promise<QuizGameType | null> {
         const pendingSecondPlayerGame = await this.quizRepository.findPendingSecondPlayerGame()
         if (!pendingSecondPlayerGame) {
             const questions = await this.questionService.getRandomQuestions(5)
-            if(!questions) return null
+            if (!questions) return null
             const newQuizGame: QuizGameType = {
                 _id: new ObjectId(),
                 firstPlayer: {
@@ -78,16 +79,54 @@ export class QuizService {
         return this.quizRepository.connectToExistingGame(pendingSecondPlayerGame._id, userId, userLogin)
     }
 
-    async sendAnswer(userId: string) {
+    async sendAnswer(userId: string, answer: string): Promise<AnswerType | null> {
+
+        const activeGame = await this.quizRepository.getMyActiveGame(userId)
+        if (!activeGame) return null
+
+        const {firstPlayer, secondPlayer} = activeGame
+
+        const currentPlayerQueryString = firstPlayer.user.id === userId ? "firstPlayer" : "secondPlayer"
+        const currentPlayer = firstPlayer.user.id === userId ? firstPlayer : secondPlayer
+        const anotherPlayer = secondPlayer!.user.id === userId ? firstPlayer : secondPlayer
+
+        const currentQuestionIndex = currentPlayer!.answers.length
+        if (currentQuestionIndex === activeGame.questions.length) return null
+
+        const answerResult = {
+            questionId: activeGame.questions[currentQuestionIndex].id,
+            answerStatus: activeGame.questions[currentQuestionIndex].answer === answer ? AnswerStatusType.Correct : AnswerStatusType.Incorrect,
+            addedAt: new Date()
+        }
+
+        await this.quizRepository.addAnswer(activeGame._id, currentPlayerQueryString, answerResult)
+
+        let scores = 0
+        if (answerResult.answerStatus === AnswerStatusType.Correct) scores++
+        if (
+            currentQuestionIndex === activeGame.questions.length - 1 &&
+            anotherPlayer!.answers.length !== activeGame.questions.length &&
+            (answerResult.answerStatus === AnswerStatusType.Correct || currentPlayer!.answers.find(el => el.answerStatus === AnswerStatusType.Correct))
+        ) {
+            scores++
+        }
+
+        if (scores > 0) await this.quizRepository.updateInGameUserScores(activeGame._id, currentPlayerQueryString, scores)
+
+        if (
+            currentQuestionIndex === activeGame.questions.length - 1 &&
+            anotherPlayer!.answers.length === activeGame.questions.length) await this.quizRepository.finishGame(activeGame._id)
+
+        return answerResult
+
+    }
+
+    async getMyCurrentGame(userId: string): Promise<QuizGameType | null> {
         return this.quizRepository.getMyCurrentGame(userId)
     }
 
-    async getMyCurrentGame() {
-        return 'current game - service'
-    }
-
-    async getGameById() {
-        return 'game by id - service'
+    async getGameById(gameId: ObjectId): Promise<QuizGameType | null> {
+        return this.quizRepository.getGameById(gameId)
     }
 
     async getMyGames() {
