@@ -35,7 +35,7 @@ const AnswerSchema = new mongoose.Schema<AnswerType>({
     questionId: String,
     answerStatus: String,
     addedAt: Date
-})
+}, {_id: false})
 const PlayerSchema = new mongoose.Schema<PlayerType>({
 
     answers: [AnswerSchema],
@@ -109,7 +109,7 @@ const QuizGameSchema = new mongoose.Schema<QuizGameType>({
     _id: ObjectId,
     firstPlayer: PlayerSchema,
     secondPlayer: {type: PlayerSchema, default: null},
-    questions: [{id: String, body: String, answer: String}],
+    questions: [{id: String, body: String, answer: String, _id: false}],
     status: String,
     pairCreatedDate: Date,
     startGameDate: {type: Date, default: null},

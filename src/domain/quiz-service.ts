@@ -2,7 +2,9 @@ import {inject, injectable} from "inversify";
 import {QuizRepository} from "../repository/quiz-repository";
 import {ObjectId} from "mongodb";
 import {QuestionsService} from "./questions-service";
-import {QuizModelClass} from "../repository/db";
+import {PaginationType, transformToPaginationView} from "../helpers/transformToPaginationView";
+import {idMapper} from "../helpers/id-mapper";
+import {FORBIDDEN} from "../helpers/constants";
 
 export enum QuizGameStatusType {
     PendingSecondPlayer = "PendingSecondPlayer",
@@ -19,7 +21,7 @@ export enum AnswerStatusType {
 export type QuestionType = {
     id: string
     body: string
-    answer: string
+    answer?: string
 }
 export  type AnswerType = {
     questionId: string
@@ -45,6 +47,23 @@ export type QuizGameType = {
     finishGameDate: Date | null
 }
 
+const hideAnswers = (game: QuizGameType, userId: string): QuizGameType => {
+    const currentPlayer = game.firstPlayer.user.id === userId ? game.firstPlayer : game.secondPlayer
+    const currentPlayerAnswersLength = currentPlayer!.answers.length
+
+    if (game.status === QuizGameStatusType.PendingSecondPlayer) {
+        game.questions.splice(0)
+    } else if (currentPlayerAnswersLength !== game.questions.length) {
+
+        game.questions.splice(currentPlayerAnswersLength + 1)
+    }
+    game.questions = game.questions.map(el => {
+        const {answer, ...rest} = el
+        return rest
+    })
+    return game
+}
+
 @injectable()
 export class QuizService {
     constructor(@inject(QuizRepository) protected quizRepository: QuizRepository,
@@ -52,6 +71,8 @@ export class QuizService {
     }
 
     async createOrConnect(userId: string, userLogin: string): Promise<QuizGameType | null> {
+        const myCurrentGame = await this.quizRepository.getMyCurrentGame(userId)
+        if (myCurrentGame) return null
         const pendingSecondPlayerGame = await this.quizRepository.findPendingSecondPlayerGame()
         if (!pendingSecondPlayerGame) {
             const questions = await this.questionService.getRandomQuestions(5)
@@ -122,15 +143,25 @@ export class QuizService {
     }
 
     async getMyCurrentGame(userId: string): Promise<QuizGameType | null> {
-        return this.quizRepository.getMyCurrentGame(userId)
+        const currentGame = await this.quizRepository.getMyCurrentGame(userId)
+        if (!currentGame) return null
+        return hideAnswers(currentGame, userId)
     }
 
-    async getGameById(gameId: ObjectId): Promise<QuizGameType | null> {
-        return this.quizRepository.getGameById(gameId)
+    async getGameById(gameId: ObjectId, userId: string): Promise<QuizGameType | null | typeof FORBIDDEN> {
+        const game = await this.quizRepository.getGameById(gameId)
+        if (!game) return null
+        if (game.firstPlayer.user.id !== userId && game.secondPlayer?.user?.id !== userId) return FORBIDDEN
+        return hideAnswers(game, userId)
     }
 
-    async getMyGames() {
-        return 'my games - service'
+    async getMyGames(userId: string, PageNumber: number, PageSize: number): Promise<PaginationType<(Omit<QuizGameType, '_id'> & { id: string })>> {
+        const currentGame = await this.getMyCurrentGame(userId)
+        const myGamesCount = await this.quizRepository.countGamesByFilter({$or: [{'firstPlayer.user.id': userId}, {'secondPlayer.user.id': userId}]})
+        const finishedGames = await this.quizRepository.getMyFinishedGames(userId, PageNumber, PageSize)
+        if (currentGame) finishedGames.push(currentGame)
+        const myGames = idMapper(finishedGames)
+        return transformToPaginationView<(Omit<QuizGameType, '_id'> & { id: string })>(myGamesCount, PageSize, PageNumber, myGames)
     }
 
     async getTopUsers() {

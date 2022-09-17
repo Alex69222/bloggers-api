@@ -51,7 +51,7 @@ export class BloggersRepository{
         return true
     }
     async getBloggerPosts(pageNumber: number, pageSize: number, id: string, userId: string | undefined): Promise<{ bloggerPostsCount: number, bloggerPosts: (Omit<PostType, '_id'> & { id: string })[] }> {
-        const bloggerPostsCount = await postsCollection.count({bloggerId: id})
+        const bloggerPostsCount = await PostModelClass.count({bloggerId: id})
         const bpostsDB = await PostModelClass.find({bloggerId: id}).skip(((pageNumber - 1) * pageSize)).limit(pageSize).lean()
          let bloggerPosts = idMapper(bpostsDB)
 

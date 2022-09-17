@@ -57,12 +57,14 @@ export class QuizRepository {
         }).lean()
     }
 
-    async addAnswer(gameId: ObjectId, currentPlayerQueryString: string, answer: AnswerType): Promise<QuizGameType | null> {
-        return QuizModelClass.findOneAndUpdate({gameId}, {$push: {[currentPlayerQueryString + ".answers"]: answer}})
+    async addAnswer(gameId: ObjectId, currentPlayerQueryString: "firstPlayer" | "secondPlayer", answer: AnswerType): Promise<QuizGameType | null> {
+        // const updated = await QuizModelClass.findOneAndUpdate({gameId}, {$push: {[currentPlayerQueryString + ".answers"]: answer}}, {new: true})
+        // console.log(updated)
+        return QuizModelClass.findOneAndUpdate({gameId}, {$push: {[currentPlayerQueryString + ".answers"]: answer}}, {new: true})
     }
 
-    async updateInGameUserScores(gameId: ObjectId, currentPlayerQueryString: string, scores: number): Promise<QuizGameType | null> {
-        return QuizModelClass.findOneAndUpdate({gameId}, {$inc: {[currentPlayerQueryString + ".scores"]: scores}})
+    async updateInGameUserScores(gameId: ObjectId, currentPlayerQueryString: "firstPlayer" | "secondPlayer", scores: number): Promise<QuizGameType | null> {
+        return QuizModelClass.findOneAndUpdate({_id: gameId}, {$inc: {[currentPlayerQueryString + ".score"]: scores}}, {new: true})
     }
 
     async finishGame(gameId: ObjectId): Promise<QuizGameType | null> {
@@ -70,11 +72,19 @@ export class QuizRepository {
     }
 
     async getGameById(gameId: ObjectId): Promise<QuizGameType | null> {
-        return QuizModelClass.findById(gameId)
+        return QuizModelClass.findById(gameId).lean()
     }
 
-    async getMyGames() {
-        return 'my games - repo'
+    async countGamesByFilter(filter: object){
+        return QuizModelClass.estimatedDocumentCount(filter)
+    }
+    async getMyFinishedGames(userId: string, PageNumber: number, PageSize: number) {
+       return  QuizModelClass.find({
+           $and:[
+               {status: QuizGameStatusType.Finished},
+               {$or: [{'firstPlayer.user.id': userId}, {'secondPlayer.user.id': userId}]}
+           ]
+       }).skip((PageNumber - 1) * PageSize).limit(PageSize).lean()
     }
 
     async getTopUsers() {
