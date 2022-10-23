@@ -46,7 +46,17 @@ export type QuizGameType = {
     startGameDate: Date | null
     finishGameDate: Date | null
 }
-
+export type UserPlayer = {
+    user: {
+        id: string
+        login: string
+    }
+    sumScore: number
+    avgScores: number
+    gamesCount: number
+    winsCount: number
+    lossesCount: number
+}
 const hideAnswers = (game: QuizGameType, userId: string): QuizGameType => {
     const currentPlayer = game.firstPlayer.user.id === userId ? game.firstPlayer : game.secondPlayer
     const currentPlayerAnswersLength = currentPlayer!.answers.length
@@ -76,6 +86,7 @@ export class QuizService {
         const pendingSecondPlayerGame = await this.quizRepository.findPendingSecondPlayerGame()
         if (!pendingSecondPlayerGame) {
             const questions = await this.questionService.getRandomQuestions(5)
+            // console.log(questions)
             if (!questions) return null
             const newQuizGame: QuizGameType = {
                 _id: new ObjectId(),
@@ -111,6 +122,23 @@ export class QuizService {
         const currentPlayer = firstPlayer.user.id === userId ? firstPlayer : secondPlayer
         const anotherPlayer = secondPlayer!.user.id === userId ? firstPlayer : secondPlayer
 
+
+        const player = await this.quizRepository.getPlayer(userId)
+        if (!player) {
+            const player: UserPlayer = {
+                user: {
+                    id: currentPlayer!.user.id,
+                    login: currentPlayer!.user.login,
+                },
+                sumScore: 0,
+                avgScores: 0,
+                gamesCount: 0,
+                winsCount: 0,
+                lossesCount: 0
+            }
+            await this.quizRepository.createPlayer(player)
+        }
+
         const currentQuestionIndex = currentPlayer!.answers.length
         if (currentQuestionIndex === activeGame.questions.length) return null
 
@@ -136,12 +164,52 @@ export class QuizService {
 
         if (
             currentQuestionIndex === activeGame.questions.length - 1 &&
-            anotherPlayer!.answers.length === activeGame.questions.length) await this.quizRepository.finishGame(activeGame._id)
+            anotherPlayer!.answers.length === activeGame.questions.length) {
+            await this.quizRepository.finishGame(activeGame._id)
+
+            const myScores = currentPlayer!.score + scores
+            const opponentScores = anotherPlayer!.score
+
+// NEED TESTS--------------------------------------------------------
+
+            await this.quizRepository.updatePlayerGamesCount(currentPlayer!.user.id)
+            await this.quizRepository.updatePlayerGamesCount(anotherPlayer!.user.id)
+            if (myScores > opponentScores) {
+
+                await this.quizRepository.updatePlayerWinsCount(currentPlayer!.user.id)
+                await this.quizRepository.updatePlayerSumScore(currentPlayer!.user.id, myScores)
+                await this.quizRepository.updatePlayerLossesCount(anotherPlayer!.user.id)
+            } else if (myScores === opponentScores) {
+                await this.quizRepository.updatePlayerWinsCount(currentPlayer!.user.id)
+                await this.quizRepository.updatePlayerSumScore(currentPlayer!.user.id, myScores)
+                await this.quizRepository.updatePlayerWinsCount(anotherPlayer!.user.id)
+                await this.quizRepository.updatePlayerSumScore(anotherPlayer!.user.id, opponentScores)
+            } else {
+                // console.log(currentPlayer!.user.id)
+                // console.log(anotherPlayer!.user.id)
+                await this.quizRepository.updatePlayerLossesCount(currentPlayer!.user.id)
+                await this.quizRepository.updatePlayerWinsCount(anotherPlayer!.user.id)
+                await this.quizRepository.updatePlayerSumScore(anotherPlayer!.user.id, opponentScores)
+            }
+            await this.quizRepository.updatePlayerAvgScore(currentPlayer!.user.id)
+            await this.quizRepository.updatePlayerAvgScore(anotherPlayer!.user.id)
+        }
 
         return answerResult
 
     }
 
+    async getPlayerById(userId: string): Promise<UserPlayer | null> {
+        return this.quizRepository.getPlayer(userId)
+    }
+
+    //
+    // async calculatePlayerAvgScore(userId: string) {
+    //     const myGamesCount = await this.quizRepository.countGamesByFilter({$or: [{'firstPlayer.user.id': userId}, {'secondPlayer.user.id': userId}]})
+    //
+    // }
+
+// NEED TESTS--------------------------------------------------------END
     async getMyCurrentGame(userId: string): Promise<QuizGameType | null> {
         const currentGame = await this.quizRepository.getMyCurrentGame(userId)
         if (!currentGame) return null

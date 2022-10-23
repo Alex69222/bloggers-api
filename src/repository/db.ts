@@ -6,8 +6,8 @@ import {BloggerType} from "../domain/bloggers-service";
 import {NewestLikes, PostType} from "../domain/posts-service";
 import mongoose from "mongoose";
 import {LIKES} from "../types/types";
-import {AnswerType, PlayerType, QuizGameType} from "../domain/quiz-service";
-import { IQuestion } from "../domain/questions-service";
+import {AnswerType, PlayerType, QuizGameType, UserPlayer} from "../domain/quiz-service";
+import {IQuestion} from "../domain/questions-service";
 
 export const client = new MongoClient(settings.MONGO_URI)
 export const db = client.db('bloggers-posts')
@@ -121,13 +121,26 @@ const QuestionSchema = new mongoose.Schema<IQuestion>({
     body: String,
     answer: String
 }, {versionKey: false})
+const UserPlayerSchema = new mongoose.Schema<UserPlayer>({
+    user: {
+        id: String,
+        login: String
+    },
+    sumScore: Number,
+    avgScores: Number,
+    gamesCount: Number,
+    winsCount: Number,
+    lossesCount: Number,
+
+}, {versionKey: false})
+
 
 export const BloggersModelClass = mongoose.model('bloggers', BloggerSchema,)
 export const UserModelClass = mongoose.model('users', UserSchema)
 export const PostModelClass = mongoose.model('posts', PostsSchema)
 export const CommentModelClass = mongoose.model('comments', CommentsSchema)
 export const QuizModelClass = mongoose.model('quiz', QuizGameSchema)
-
+export const UserPlayerModelClass = mongoose.model('players', UserPlayerSchema)
 export const QuestionModelClass = mongoose.model('questions', QuestionSchema)
 
 export async function runDb() {

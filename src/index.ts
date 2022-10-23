@@ -21,7 +21,8 @@ app.get('/', (req: Request, res: Response) => {
     res.send('Bloggers Tube')
 })
 
-app.use('/api/bloggers', bloggersRouter)
+// app.use('/api/bloggers', bloggersRouter)
+app.use('/api/blogs', bloggersRouter)
 app.use('/api/posts', postsRouter)
 app.use('/api/users', usersRouter)
 app.use('/api/auth', authRouter)

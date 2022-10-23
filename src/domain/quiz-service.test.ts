@@ -1,9 +1,9 @@
 import {MongoMemoryServer} from "mongodb-memory-server";
 import {container} from "../composition-root";
-import {AnswerStatusType, QuizGameStatusType, QuizGameType, QuizService} from "./quiz-service";
+import {AnswerStatusType, QuizGameStatusType, QuizGameType, QuizService, UserPlayer} from "./quiz-service";
 import mongoose from "mongoose";
 import {ObjectId} from "mongodb";
-import {QuestionModelClass, QuizModelClass} from "../repository/db";
+import {QuestionModelClass, QuizModelClass, UserPlayerModelClass} from "../repository/db";
 import {FORBIDDEN} from "../helpers/constants";
 
 describe("tests for quiz-service", () => {
@@ -143,6 +143,7 @@ describe("tests for quiz-service", () => {
         it("should return current game with status: Active", async () => {
             await quizService.createOrConnect("myId2", "myLogin2")
             const res = await quizService.getMyCurrentGame("myId2")
+            // console.log(res)
             expect(res!.firstPlayer.user.id).toBe("myId")
             expect(res!.secondPlayer!.user.id).toBe("myId2")
             expect(res!.pairCreatedDate).not.toBeNull()
@@ -155,7 +156,7 @@ describe("tests for quiz-service", () => {
             const id = new ObjectId()
             const anotherGame = {...newQuizGame, _id: id, status: QuizGameStatusType.Finished}
             // const anotherGame = {...JSON.parse(JSON.stringify(newQuizGame)),_id: id, status: QuizGameStatusType.Finished }
-            await QuizModelClass.insertMany([anotherGame])
+            await QuizModelClass.insertMany([{...anotherGame}])
             const res = await quizService.getMyCurrentGame("userId")
             expect(res).toBeNull()
 
@@ -192,7 +193,7 @@ describe("tests for quiz-service", () => {
 
             await quizService.sendAnswer("userId", "a4")
             const res6 = await quizService.getMyCurrentGame("userId")
-            console.log(res6!.questions)
+            // console.log(res6!.questions)
             expect(res6!.questions.length).toBe(5)
 
             await quizService.sendAnswer("userId", "a5")
@@ -276,11 +277,12 @@ describe("tests for quiz-service", () => {
 
             })
         })
-        describe("sendAnswers scenarios", () => {
+        describe("sendAnswer scenarios", () => {
             beforeEach(async () => {
                 // firstPlayer id: 'userId', login: 'userLogin'
                 await QuizModelClass.insertMany([newQuizGame])
                 await quizService.createOrConnect("userId2", "userLogin2")
+                await UserPlayerModelClass.deleteMany({})
             })
             afterEach(async () => {
                 await QuizModelClass.deleteMany({})
@@ -299,6 +301,26 @@ describe("tests for quiz-service", () => {
                 await quizService.sendAnswer("userId2", "a5")
 
                 const res = await quizService.getGameById(newQuizGame._id, "userId") as QuizGameType
+                const player1 = await  quizService.getPlayerById("userId") as UserPlayer
+                const player2 = await  quizService.getPlayerById("userId2") as UserPlayer
+
+                console.log(player1)
+                console.log(player2)
+                expect(player1.gamesCount).toBe(1)
+                expect(player2.gamesCount).toBe(1)
+
+                expect(player1.lossesCount).toBe(1)
+                expect(player2.lossesCount).toBe(0)
+
+                expect(player1.winsCount).toBe(0)
+                expect(player2.winsCount).toBe(1)
+
+                expect(player1.sumScore).toBe(0)
+                expect(player2.sumScore).toBe(5)
+
+                expect(player1.avgScores).toBe(0)
+                expect(player2.avgScores).toBe(5)
+                // console.log(res)
                 expect(res!.status).toBe(QuizGameStatusType.Finished)
                 expect(res!.firstPlayer.score).toBe(2)
                 expect(res!.secondPlayer!.score).toBe(5)
@@ -393,7 +415,7 @@ describe("tests for quiz-service", () => {
     })
     describe("getGameById", ()=>{
         afterAll(async ()=>{
-            QuizModelClass.deleteMany({})
+          await  QuizModelClass.deleteMany({})
         })
         it("should return null, as there is no game with that id", async () =>{
             const res = await quizService.getGameById(new ObjectId(), "userId")
@@ -405,7 +427,7 @@ describe("tests for quiz-service", () => {
             await quizService.sendAnswer("userId", "a1")
             await quizService.sendAnswer("userId", "a2")
             const res = await quizService.getGameById(newQuizGame._id, "userId") as QuizGameType
-            console.log(res!.questions)
+            // console.log(res!.questions)
             expect(res!.firstPlayer.user.id).toBe("userId")
         })
         it("should return string: FORBIDDEN, as the user didn't take part in the game", async () =>{

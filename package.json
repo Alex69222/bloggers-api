@@ -9,7 +9,7 @@
     "build": "tsc",
     "start": "node ./dist/index.js",
     "test": "jest --config src/jest.config.js",
-    "test-w": "jest --config src/jest.config.js --watch --detectOpenHandles --coverage",
+    "test-w": "jest --config src/jest.config.js --watch",
     "test-leaks": "jest --config src/jest.config.js  --detectOpenHandles"
   },
   "dependencies": {
