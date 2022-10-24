@@ -19,7 +19,7 @@ export class JwtService{
         return token
     }
     async createRefreshJWT(_id: ObjectId): Promise<string> {
-        const refreshToken = jwt.sign({userId: _id}, settings.JWT_SECRET, {expiresIn: '2h'})
+        const refreshToken = jwt.sign({userId: _id}, settings.JWT_SECRET, {expiresIn: 20})
         // const refreshTokenAdded = await this.usersService.addRefreshToken(_id, refreshToken)
         return refreshToken
     }
