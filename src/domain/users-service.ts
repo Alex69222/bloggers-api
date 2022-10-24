@@ -57,7 +57,7 @@ export class UsersService {
         return await this.usersRepository.findUserById(userId)
     }
 
-    async createUser(login: string, email: string, password: string): Promise<{ id: string, login: string } | null> {
+    async createUser(login: string, email: string, password: string): Promise<{ id: string, login: string, createdAt: Date, email: string } | null> {
         const loginIsInUse = await this.usersRepository.findByLogin(login)
         if (loginIsInUse) return null
         const emailIsInUse = await this.usersRepository.findUserByEmail(email)
@@ -93,7 +93,9 @@ export class UsersService {
             this.emailManager.sendEmailConfirmationMessage(newUser)
             return {
                 login: accountData.userName,
-                id: insertedId.toString()
+                id: insertedId.toString(),
+                createdAt: accountData.createdAt,
+                email: accountData.email
             }
         } catch (err) {
             console.log(err)

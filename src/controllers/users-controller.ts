@@ -15,7 +15,7 @@ export class UsersController {
         res.status(200).send(users)
     }
 
-    async createUser(req: Request<{}, { id: string, login: string } | string, { login: string, email: string, password: string }, {}>, res: Response<{ id: string, login: string } | string>) {
+    async createUser(req: Request<{}, { id: string, login: string } | string, { login: string, email: string, password: string }, {}>, res: Response<{ id: string, login: string, createdAt: Date, email: string } | string>) {
         const newUser = await this.usersService.createUser(req.body.login, req.body.email, req.body.password)
         if (!newUser) return res.status(400).send('Something went wrong. Please try again later.')
         return res.status(201).send(newUser)
