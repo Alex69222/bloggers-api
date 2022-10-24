@@ -15,7 +15,7 @@ export class JwtService{
     constructor() {
     }
     async createJWT(_id: ObjectId): Promise<string> {
-        const token = jwt.sign({userId: _id}, settings.JWT_SECRET, {expiresIn: '1h'})
+        const token = jwt.sign({userId: _id}, settings.JWT_SECRET, {expiresIn: 10})
         return token
     }
     async createRefreshJWT(_id: ObjectId): Promise<string> {
